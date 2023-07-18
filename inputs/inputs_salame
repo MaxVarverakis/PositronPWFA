@@ -1,0 +1,89 @@
+hipace.file_prefix  = diags/hdf5/salame
+beams.insitu_file_prefix = diags/insitu/salame
+plasmas.insitu_file_prefix = diags/insitu/salame
+
+amr.n_cell = 511 511 512 # number of grid points in x,y,z
+                            # note that this is a pretty high resolution
+                            # and requires a proper GPU to be computed.
+                            # on CPU, this would take a significant amount of time
+                            # for performance: 2^n-1 is the optimal number of grid points in x and y
+                            # 2^n is also acceptable, but all other should be avoided at all costs.
+
+hipace.normalized_units = 1   # using normalized units. = 0 means SI units
+hipace.verbose = 1          # amount of information that the simulation is printing
+
+diagnostic.diag_type = xyz     # only using 2D field diagnostics (3D diagnostics with high res are extremely expensive)
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez Psi Sx Sy chi jx jx_beam jy jy_beam jz_beam rho rhomjz # ExmBy Ez rho   # write only these 3 fields to file (without this input parameter, all are written to file)
+amr.max_level = 0           # no mesh refinement
+
+max_step = 1                  # = 0 means that only the plasma response to the initial beam is simulated
+hipace.dt = adaptive          # adaptive time step, could also be a number, like 5 in normalized units or 5e-13 in SI units
+diagnostic.output_period = 1  # period of the output, first and last step are always written to file
+
+
+hipace.depos_order_xy = 2     # numerical parameter, not relevant for you
+
+geometry.is_periodic = 1     1     0        # whether the particle boundary conditions are periodic in x,y,z
+geometry.prob_lo     = -16.   -16.   -34    # physical domain in x,y,z
+geometry.prob_hi     =  16.    16.    6
+
+beams.names = drive witness witness2 recovery
+beams.insitu_period = 1
+
+drive.profile = gaussian               # Gaussian beam
+drive.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
+drive.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+drive.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
+drive.density = 800
+drive.u_mean = 0. 0. 10000               # ~ 5 GeV
+drive.u_std = 3.535533906 3.535533906 0. # matched to the blowout
+drive.position_mean = 0.0 0. 0
+drive.position_std = 0.05 0.05 1.41      # rms beam size
+
+witness.injection_type = fixed_weight
+witness.num_particles = 750000 # 00
+witness.element = positron
+witness.density = 260  #  350.
+witness.u_mean = 0. 0. 2000
+witness.u_std = 3.448275862 3.448275862 0  #4. 4. 0.
+witness.position_mean = 0. 0.0 -11.57
+witness.position_std = 0.029 0.029 0.5 # 0.025 0.025 0.5
+witness.do_symmetrize = 1
+witness.n_subcycles = 10
+
+witness2.injection_type = fixed_weight
+witness2.num_particles = 500000 # 00
+witness2.element = positron
+witness2.density = 44.6 # 60.
+witness2.u_mean = 0. 0. 2000
+witness2.u_std = 3.448275862 3.448275862 0  #4. 4. 0.
+witness2.position_mean = 0. 0.0 -11.3
+witness2.position_std = 0.029 0.029 0.2 #0.025 0.025 0.2
+witness2.do_symmetrize = 1
+witness2.n_subcycles = 10
+
+recovery.profile = gaussian               # Gaussian beam
+recovery.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
+recovery.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+recovery.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
+recovery.density = 1600 # 800
+recovery.u_mean = 0. 0. 2000                # ~ 1 GeV
+recovery.u_std = 3.535533906 3.535533906 0. # matched to the blowout
+recovery.position_mean = 0.0 0. -17.5
+recovery.position_std = 0.05 0.05 0.3525 # 0.25    # rms beam size
+recovery.zmin = -24
+recovery.zmax = -11.9
+recovery.do_salame = 1
+
+plasmas.names = electrons ions # names of the plasma species
+plasmas.insitu_period = 1
+electrons.element = electron
+electrons.density(x,y,z) = 1.
+electrons.radius = 2.5
+electrons.ppc = 5 5
+electrons.temperature_in_ev = 15
+ions.charge = 1
+ions.mass = 7349.388355 # Helium, note that this could have also be via ions.element = He and specifying the ionization level to 1
+ions.density(x,y,z) = 1.
+ions.radius = 2.5
+ions.ppc = 5 5

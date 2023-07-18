@@ -1,0 +1,43 @@
+amr.n_cell = 255 255 256 # 32 32 200
+
+hipace.file_prefix  = diags/hdf5/linear
+beams.insitu_file_prefix = diags/insitu/linear
+plasmas.insitu_file_prefix = diags/insitu/linear
+
+hipace.normalized_units  = 1
+
+diagnostic.output_period = 1
+beams.insitu_period      = 1
+plasmas.insitu_period    = 1
+
+amr.max_level = 0
+
+max_step = 0
+
+hipace.depos_order_xy = 2
+
+geometry.is_periodic =   1      1     0     # Is periodic?
+geometry.prob_lo     = -10.   -10.   -19    # physical domain
+geometry.prob_hi     =  10.    10.    6
+
+beams.names = beam
+beam.injection_type = fixed_ppc
+beam.ppc = 5 5 5
+beam.profile = flattop
+beam.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+beam.num_particles = 4000000
+beam.radius = 1
+beam.density = 0.01
+beam.u_mean = 0. 0. 2000
+beam.u_std = 0. 0. 0.
+beam.position_mean = 0.0 0. 0
+beam.position_std = 0.05 0.05 0.5
+beam.zmin = -2.5
+beam.zmax = 2.5
+
+plasmas.names = plasma
+plasma.density(x,y,z) = 1.
+plasma.ppc = 1 1
+plasma.u_mean = 0.0 0.0 0.
+plasma.element = electron
+diagnostic.diag_type = xyz

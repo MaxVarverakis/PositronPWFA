@@ -1,7 +1,12 @@
-max_step = 300
-amr.n_cell = 1024 1024 1024
+hipace.file_prefix  = diags/hdf5/pwfa
+
+max_step = 100
+amr.n_cell = 511 511 512
 
 amr.max_level = 0
+
+diagnostic.diag_type = xz     # only using 2D field diagnostics (3D diagnostics with high res are extremely expensive)
+diagnostic.field_data = ExmBy Ez rho   # write only these 3 fields to file (without this input parameter, all are written to file)
 
 hipace.max_time = 0.3/clight
 diagnostic.output_period = 1
@@ -12,7 +17,7 @@ hipace.numprocs_y = 1
 
 hipace.depos_order_xy = 2
 hipace.dt = adaptive
-hipace.nt_per_betatron = 30
+hipace.nt_per_betatron = 5
 
 geometry.is_periodic = true  true  false  # Is periodic?
 geometry.prob_lo     = -250.e-6 -250.e-6 -250.e-6  # physical domain
@@ -23,7 +28,7 @@ beams.names = driver witness
 driver.position_mean = 0. 0. 0.
 driver.position_std = 2.e-6 2.e-6 30.e-6
 driver.injection_type = fixed_weight
-driver.num_particles = 1000000
+driver.num_particles = 1000
 driver.total_charge = .6e-9
 driver.u_mean = 0. 0. 1000.
 driver.u_std = 2. 2. 10.
@@ -32,7 +37,7 @@ driver.do_symmetrize = 1
 witness.position_mean = 0. 0. -160.e-6
 witness.position_std = 2.e-6 2.e-6 5.e-6
 witness.injection_type = fixed_weight
-witness.num_particles = 1000000
+witness.num_particles = 1000
 witness.total_charge = .2e-9
 witness.u_mean = 0. 0. 1000.
 witness.u_std = 2. 2. 10.
