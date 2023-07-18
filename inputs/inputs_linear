@@ -21,19 +21,19 @@ geometry.prob_lo     = -10.   -10.   -19    # physical domain
 geometry.prob_hi     =  10.    10.    6
 
 beams.names = beam
-beam.injection_type = fixed_ppc
-beam.ppc = 5 5 5
-beam.profile = flattop
+beam.injection_type = fixed_weight # fixed_ppc
+# beam.ppc = 5 5 5
+beam.profile = gaussian # flattop
 beam.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
-beam.num_particles = 4000000
-beam.radius = 1
+beam.num_particles = 8000000
+beam.radius = 3 # 1
 beam.density = 0.01
 beam.u_mean = 0. 0. 2000
 beam.u_std = 0. 0. 0.
 beam.position_mean = 0.0 0. 0
 beam.position_std = 0.05 0.05 0.5
-beam.zmin = -2.5
-beam.zmax = 2.5
+# beam.zmin = -2.5
+# beam.zmax = 2.5
 
 plasmas.names = plasma
 plasma.density(x,y,z) = 1.
