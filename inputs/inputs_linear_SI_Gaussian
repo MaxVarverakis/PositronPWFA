@@ -1,0 +1,45 @@
+amr.n_cell = 511 511 512 # 1023 1023 1024
+
+hipace.file_prefix  = diags/hdf5/linearSI/Gaussian # Step
+beams.insitu_file_prefix = diags/insitu/linearSI/Gaussian # Step
+plasmas.insitu_file_prefix = diags/insitu/linearSI/Gaussian # Step
+
+hipace.normalized_units  = 0
+
+diagnostic.output_period = 1
+beams.insitu_period      = 1
+plasmas.insitu_period    = 1
+
+amr.max_level = 0
+
+max_step = 0
+
+hipace.depos_order_xy = 2
+
+geometry.is_periodic =   1      1     0     # Is periodic?
+geometry.prob_lo     = -150.e-6   -150.e-6   -350e-6    # physical domain
+geometry.prob_hi     =  150.e-6    150.e-6    100e-6
+
+beams.names = beam
+beam.injection_type = fixed_weight # fixed_ppc
+# beam.ppc = 1 1 1
+beam.profile = gaussian # flattop
+beam.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+beam.num_particles = 4e7
+# beam.radius = 20.e-6 # 1
+beam.density = 4.23e20 # m^-3
+beam.u_mean = 0. 0. 19569.511835738733 # 10 GeV
+beam.u_std = 0. 0. 0.
+beam.position_mean = 0.0 0. 0
+beam.position_std = 20.e-6 20.e-6 15.e-6
+# beam.zmin = -100e-6 # MAKE MUCH SMALLER, HOPEFULLY WILL FIX LONGITUDINAL FUNKINESS
+# beam.zmax = 100e-6
+
+plasmas.names = plasma
+plasma.density(x,y,z) = 8.e22 # m^-3
+plasma.ppc = 1 1
+plasma.u_mean = 0.0 0.0 0.
+plasma.element = electron
+
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez rho
+diagnostic.diag_type = xyz
