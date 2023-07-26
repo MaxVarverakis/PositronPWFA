@@ -1,0 +1,45 @@
+amr.n_cell = 511 511 512
+
+hipace.file_prefix  = diags/hdf5/linear_normalized/Gaussian
+beams.insitu_file_prefix = diags/insitu/linear_normalized/Gaussian
+plasmas.insitu_file_prefix = diags/insitu/linear_normalized/Gaussian
+
+hipace.normalized_units  = 1
+
+diagnostic.output_period = 1
+beams.insitu_period      = 1
+plasmas.insitu_period    = 1
+
+amr.max_level = 0
+
+max_step = 0
+
+hipace.depos_order_xy = 2
+
+geometry.is_periodic =   1      1     0     # Is periodic?
+geometry.prob_lo     = -7.983752783925035   -7.983752783925035   -18.628756495825083    # physical domain
+geometry.prob_hi     =  7.983752783925035    7.983752783925035    5.322501855950025
+
+beams.names = beam
+beam.injection_type = fixed_weight # fixed_ppc
+# beam.ppc = 5 5 5
+beam.profile = gaussian # flattop
+beam.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+beam.num_particles = 4e7
+# beam.radius = 3 # 1
+beam.density = 0.005291136327853413
+beam.u_mean = 0. 0. 19569.511835738733  # 10 GeV
+beam.u_std = 0. 0. 0.
+beam.position_mean = 0.0 0. 0
+beam.position_std = 1.064500371190005 1.064500371190005 0.7983752783925037
+# beam.zmin = -2.5
+# beam.zmax = 2.5
+
+plasmas.names = plasma
+plasma.density(x,y,z) = 1.
+plasma.ppc = 1 1
+plasma.u_mean = 0.0 0.0 0.
+plasma.element = electron
+
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez rho
+diagnostic.diag_type = xyz
