@@ -3,46 +3,46 @@ beams.insitu_file_prefix = diags/insitu/eff
 plasmas.insitu_file_prefix = diags/insitu/eff
 
 amr.n_cell = 511 511 512 # number of grid points in x,y,z
-                            # note that this is a pretty high resolution
-                            # and requires a proper GPU to be computed.
-                            # on CPU, this would take a significant amount of time
-                            # for performance: 2^n-1 is the optimal number of grid points in x and y
-                            # 2^n is also acceptable, but all other should be avoided at all costs.
 
-hipace.normalized_units = 1   # using normalized units. = 0 means SI units
+hipace.normalized_units = 1 # using normalized units. = 0 means SI units
 hipace.verbose = 1          # amount of information that the simulation is printing
 
-diagnostic.names = driver_diag witness_diag
+diagnostic.names = driver_diag witness_diag recovery_diag
 
 driver_diag.diag_type = xyz
 driver_diag.field_data = Ez
 driver_diag.patch_lo = -0.25 -0.25 -6
-driver_diag.patch_hi = 0.25 0.25 6
+driver_diag.patch_hi =  0.25  0.25 6
 
 witness_diag.diag_type = xyz
 witness_diag.field_data = Ez
-witness_diag.patch_lo = -.145 -.145 -14.1
-witness_diag.patch_hi = .145 .145 -9.1
+witness_diag.patch_lo = -.145 -.145 -14.
+witness_diag.patch_hi =  .145 .145 -9.1
 
-amr.max_level = 0           # no mesh refinement
+recovery_diag.diag_type = xyz
+recovery_diag.field_data = Ez
+recovery_diag.patch_lo = -0.25 -0.25 -21.1
+recovery_diag.patch_hi =  0.25  0.25 -14.
+
+amr.max_level = 0             # no mesh refinement
 
 max_step = 0                  # = 0 means that only the plasma response to the initial beam is simulated
 hipace.dt = adaptive          # adaptive time step, could also be a number, like 5 in normalized units or 5e-13 in SI units
 diagnostic.output_period = 1  # period of the output, first and last step are always written to file
 
-hipace.depos_order_xy = 2     # numerical parameter, not relevant for you
+hipace.depos_order_xy = 2
 
 geometry.is_periodic = 1     1     0        # whether the particle boundary conditions are periodic in x,y,z
 geometry.prob_lo     = -16.   -16.   -34    # physical domain in x,y,z
-geometry.prob_hi     =  16.    16.    6
+geometry.prob_hi     =  16.    16.    6.
 
-beams.names = drive witness witness2
+beams.names = drive witness witness2 recovery
 beams.insitu_period = 1
 
 drive.profile = gaussian               # Gaussian beam
 drive.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
 drive.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
-drive.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
+drive.num_particles =  1000000 # 00
 drive.density = 800
 drive.u_mean = 0. 0. 10000               # ~ 5 GeV
 drive.u_std = 3.535533906 3.535533906 0. # matched to the blowout
@@ -70,6 +70,16 @@ witness2.position_mean = 0. 0.0 -11.3
 witness2.position_std = 0.029 0.029 0.2 #0.025 0.025 0.2
 witness2.do_symmetrize = 1
 witness2.n_subcycles = 10
+
+recovery.profile = gaussian               # Gaussian beam
+recovery.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
+recovery.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+recovery.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
+recovery.density = 800
+recovery.u_mean = 0. 0. 2000                # ~ 1 GeV
+recovery.u_std = 3.535533906 3.535533906 0. # matched to the blowout
+recovery.position_mean = 0.0 0. -17.5
+recovery.position_std = 0.05 0.05 0.705 # 0.25    # rms beam size
 
 plasmas.names = electrons ions # names of the plasma species
 plasmas.insitu_period = 1

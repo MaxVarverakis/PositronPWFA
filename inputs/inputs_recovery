@@ -13,7 +13,7 @@ hipace.normalized_units = 1   # using normalized units. = 0 means SI units
 hipace.verbose = 1          # amount of information that the simulation is printing
 
 diagnostic.diag_type = xyz     # only using 2D field diagnostics (3D diagnostics with high res are extremely expensive)
-diagnostic.field_data = Bx By Bz ExmBy EypBx Ez Psi Sx Sy chi jx jx_beam jy jy_beam jz_beam rho rhomjz # ExmBy Ez rho   # write only these 3 fields to file (without this input parameter, all are written to file)
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez jx jx_beam jy jy_beam jz_beam rho
 amr.max_level = 0           # no mesh refinement
 
 max_step = 0                  # = 0 means that only the plasma response to the initial beam is simulated
