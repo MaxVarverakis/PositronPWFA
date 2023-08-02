@@ -1,0 +1,76 @@
+amr.n_cell = 4096 4096 2048
+
+hipace.normalized_units=1
+hipace.verbose = 1
+
+hipace.bxby_solver=explicit
+
+diagnostic.diag_type=xz
+diagnostic.field_data = ExmBy # Ez rho_plasma
+#diagnostic.coarsening = 1 4 10
+diagnostic.beam_data = none
+amr.blocking_factor = 1
+amr.max_level = 0
+
+max_step = 750
+#hipace.do_adaptive_time_step=1
+hipace.dt = 4.
+hipace.nt_per_betatron = 100
+hipace.output_period = 1
+hipace.numprocs_x = 1
+hipace.numprocs_y = 1
+
+hipace.depos_order_xy = 2
+
+geometry.coord_sys   = 0                  # 0: Cartesian
+geometry.is_periodic = 1     1     0      # Is periodic?
+geometry.prob_lo     = -16.   -16.   -14    # physical domain
+geometry.prob_hi     =  16.    16.    6
+
+beams.names= beam beam2 beam3
+beams.insitu_freq = 1
+beam.profile = gaussian
+beam.injection_type = fixed_weight
+beam.do_symmetrize = 1
+beam.num_particles = 100000000
+beam.density = 800
+beam.u_mean = 0. 0. 10000
+beam.u_std = 3.535533906 3.535533906 0.
+beam.position_mean = 0.0 0. 0
+beam.position_std = 0.05 0.05 1.41
+
+
+beam2.injection_type = fixed_weight
+beam2.num_particles = 75000000
+beam2.element = positron
+beam2.density = 260  #  350.
+beam2.u_mean = 0. 0. 2000
+beam2.u_std = 3.448275862 3.448275862 0  #4. 4. 0.
+beam2.position_mean = 0.0 0.0 -11.57
+beam2.position_std = 0.029 0.029 0.5 # 0.025 0.025 0.5
+beam2.do_symmetrize=1
+beam2.n_subcycles = 10
+
+beam3.injection_type = fixed_weight
+beam3.num_particles = 50000000
+beam3.element = positron
+beam3.density = 44.6 # 60. 
+beam3.u_mean = 0. 0. 2000
+beam3.u_std = 3.448275862 3.448275862 0  #4. 4. 0.
+beam3.position_mean = 0.0  0.0 -11.3
+beam3.position_std = 0.029 0.029 0.2 #0.025 0.025 0.2
+beam3.do_symmetrize=1
+beam3.n_subcycles = 10
+
+plasmas.names = plasma   ions
+plasma.element = electron
+plasma.density(x,y,z) = 1.
+plasma.radius = 2.5
+plasma.ppc = 7 7
+plasma.neutralize_background = 0                          
+ions.charge = 1
+ions.mass = 7349.388355
+ions.neutralize_background = 0
+ions.density(x,y,z) = 1.
+ions.radius = 2.5
+ions.ppc = 4 4

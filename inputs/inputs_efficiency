@@ -1,6 +1,6 @@
-hipace.file_prefix  = diags/hdf5/eff
-beams.insitu_file_prefix = diags/insitu/eff
-plasmas.insitu_file_prefix = diags/insitu/eff
+hipace.file_prefix  = diags/hdf5/efficiency/salame
+beams.insitu_file_prefix = diags/insitu/efficiency/salame
+plasmas.insitu_file_prefix = diags/insitu/efficiency/salame
 
 amr.n_cell = 511 511 512 # number of grid points in x,y,z
 
@@ -21,8 +21,8 @@ witness_diag.patch_hi =  .145 .145 -9.1
 
 recovery_diag.diag_type = xyz
 recovery_diag.field_data = Ez
-recovery_diag.patch_lo = -0.25 -0.25 -21.1
-recovery_diag.patch_hi =  0.25  0.25 -14.
+recovery_diag.patch_lo = -0.25 -0.25 -20.9
+recovery_diag.patch_hi =  0.25  0.25 -14.1
 
 amr.max_level = 0             # no mesh refinement
 
@@ -36,7 +36,7 @@ geometry.is_periodic = 1     1     0        # whether the particle boundary cond
 geometry.prob_lo     = -16.   -16.   -34    # physical domain in x,y,z
 geometry.prob_hi     =  16.    16.    6.
 
-beams.names = drive witness witness2 recovery
+beams.names = drive witness witness2 recovery # recovery2
 beams.insitu_period = 1
 
 drive.profile = gaussian               # Gaussian beam
@@ -75,11 +75,21 @@ recovery.profile = gaussian               # Gaussian beam
 recovery.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
 recovery.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
 recovery.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
-recovery.density = 800
+recovery.density = 1600
 recovery.u_mean = 0. 0. 2000                # ~ 1 GeV
 recovery.u_std = 3.535533906 3.535533906 0. # matched to the blowout
-recovery.position_mean = 0.0 0. -17.5
-recovery.position_std = 0.05 0.05 0.705 # 0.25    # rms beam size
+recovery.position_mean = 0.0 0.   -17.5
+recovery.position_std = 0.05 0.05  0.3525 # 0.25    # rms beam size
+
+recovery2.profile = gaussian               # Gaussian beam
+recovery2.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
+recovery2.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+recovery2.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
+recovery2.density = 200
+recovery2.u_mean = 0. 0. 2000                # ~ 1 GeV
+recovery2.u_std = 3.535533906 3.535533906 0. # matched to the blowout
+recovery2.position_mean = 0.0 0.   -18.
+recovery2.position_std = 0.03 0.03  0.4 # 0.705 # 0.25    # rms beam size
 
 plasmas.names = electrons ions # names of the plasma species
 plasmas.insitu_period = 1

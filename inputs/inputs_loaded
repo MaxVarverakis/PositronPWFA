@@ -1,22 +1,17 @@
-hipace.file_prefix  = diags/hdf5/salame
-beams.insitu_file_prefix = diags/insitu/salame
-plasmas.insitu_file_prefix = diags/insitu/salame
+hipace.file_prefix  = diags/hdf5/recovery/loaded
+beams.insitu_file_prefix = diags/insitu/recovery/loaded
+plasmas.insitu_file_prefix = diags/insitu/recovery/loaded
 
-amr.n_cell = 511 511 512 # number of grid points in x,y,z
-                            # note that this is a pretty high resolution
-                            # and requires a proper GPU to be computed.
-                            # on CPU, this would take a significant amount of time
-                            # for performance: 2^n-1 is the optimal number of grid points in x and y
-                            # 2^n is also acceptable, but all other should be avoided at all costs.
+amr.n_cell = 511 511 512
 
 hipace.normalized_units = 1   # using normalized units. = 0 means SI units
 hipace.verbose = 1          # amount of information that the simulation is printing
 
-diagnostic.diag_type = xyz     # only using 2D field diagnostics (3D diagnostics with high res are extremely expensive)
+diagnostic.diag_type = xyz
 diagnostic.field_data = Bx By Bz ExmBy EypBx Ez jx jx_beam jy jy_beam jz_beam rho
 amr.max_level = 0           # no mesh refinement
 
-max_step = 1                  # = 0 means that only the plasma response to the initial beam is simulated
+max_step = 0                  # = 0 means that only the plasma response to the initial beam is simulated
 hipace.dt = adaptive          # adaptive time step, could also be a number, like 5 in normalized units or 5e-13 in SI units
 diagnostic.output_period = 1  # period of the output, first and last step are always written to file
 
@@ -63,17 +58,17 @@ witness2.do_symmetrize = 1
 witness2.n_subcycles = 10
 
 recovery.profile = gaussian               # Gaussian beam
-recovery.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
+recovery.injection_type = from_file
+recovery.input_file = diags/hdf5/salame/openpmd_%T.h5
+recovery.iteration = 1
+recovery.openPMD_species_name = recovery
 recovery.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
 recovery.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
-recovery.density = 1600 # 800
+recovery.density = 1600
 recovery.u_mean = 0. 0. 2000                # ~ 1 GeV
 recovery.u_std = 3.535533906 3.535533906 0. # matched to the blowout
-recovery.position_mean = 0.0 0. -17.5
-recovery.position_std = 0.05 0.05 0.3525 # 0.25    # rms beam size
-recovery.zmin = -24
-recovery.zmax = -11.9
-recovery.do_salame = 1
+recovery.position_mean = 0.0 0.   -17.5 # -20.25
+recovery.position_std = 0.05 0.05  0.3525 # .705 # 0.25 0.65    # rms beam size
 
 plasmas.names = electrons ions # names of the plasma species
 plasmas.insitu_period = 1
