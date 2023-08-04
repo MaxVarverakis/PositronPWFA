@@ -27,7 +27,7 @@ beam.profile = flattop
 beam.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
 beam.num_particles = 4e7
 beam.radius = 20.e-6 # 1
-beam.density = 4.23e21 # m^-3
+beam.density = 4.23e20 # m^-3
 beam.u_mean = 0. 0. 19569.511835738733 # 10 GeV
 beam.u_std = 0. 0. 0.
 beam.position_mean = 0.0 0. 0
@@ -41,5 +41,5 @@ plasma.ppc = 1 1
 plasma.u_mean = 0.0 0.0 0.
 plasma.element = electron
 
-diagnostic.field_data = Bx By Bz ExmBy EypBx Ez rho
-diagnostic.diag_type = xyz
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez rho jz_beam
+diagnostic.diag_type = xz

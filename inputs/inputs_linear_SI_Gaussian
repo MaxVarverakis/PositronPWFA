@@ -37,5 +37,5 @@ plasma.ppc = 1 1
 plasma.u_mean = 0.0 0.0 0.
 plasma.element = electron
 
-diagnostic.field_data = Bx By Bz ExmBy EypBx Ez rho
-diagnostic.diag_type = xyz
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez rho jz_beam
+diagnostic.diag_type = xz

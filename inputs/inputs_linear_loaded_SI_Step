@@ -1,0 +1,70 @@
+my_constants.n1 = 4.23e20
+my_constants.kp = 53225.01855950024 # m^-1
+my_constants.pi = "atan(1.0) * 4.0"
+# my_constants.xi0 = "pi / (3 * kp)"
+# my_constants.l = "sqrt(3) / kp"
+# my_constants.sigma = "3 * l / (8 * sqrt(2 * pi))"
+
+amr.n_cell = 511 511 512 # 1023 1023 1024 # 
+
+hipace.file_prefix  = diags/hdf5/linearSI/LoadedStep
+beams.insitu_file_prefix = diags/insitu/linearSI/LoadedStep
+plasmas.insitu_file_prefix = diags/insitu/linearSI/LoadedStep
+
+hipace.normalized_units  = 0
+hipace.beam_injection_cr = 4
+
+diagnostic.output_period = 1
+beams.insitu_period      = 1
+plasmas.insitu_period    = 1
+
+amr.max_level = 0
+
+max_step = 0
+
+hipace.depos_order_xy = 2
+
+geometry.is_periodic =   1      1     0     # Is periodic?
+geometry.prob_lo     = -150.e-6   -150.e-6   -350e-6    # physical domain
+geometry.prob_hi     =  150.e-6    150.e-6    100e-6
+
+beams.names = beam witness
+
+beam.injection_type = fixed_ppc
+beam.ppc = 1 1 1
+beam.element = electron
+beam.profile = flattop
+beam.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+beam.num_particles = 4e7
+beam.radius = 20.e-6 # 1
+beam.density = "n1" # m^-3
+beam.u_mean = 0. 0. 19569.511835738733 # 10 GeV
+beam.u_std = 0. 0. 0.
+beam.position_mean = 0.0 0. 0
+beam.position_std = 20.e-6 20.e-6 15.e-6
+beam.zmin = -15e-6
+beam.zmax = 15e-6
+
+witness.injection_type = fixed_ppc
+witness.ppc = 1 1 1
+witness.element = electron
+witness.profile = flattop
+witness.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+witness.num_particles = 4e7
+witness.radius = 20.e-6 # 1
+witness.density = "n1" # m^-3
+witness.u_mean = 0. 0. 19569.511835738733 # 10 GeV
+witness.u_std = 0. 0. 0.
+witness.position_mean = 0.0 0. "-3 * (1 / kp) * pi"
+witness.position_std = 20.e-6 20.e-6 15.e-6
+witness.zmin = "-3 * (1 / kp) * pi - 15e-6"
+witness.zmax = "-3 * (1 / kp) * pi + 15e-6"
+
+plasmas.names = plasma
+plasma.density(x,y,z) = 8.e22 # m^-3
+plasma.ppc = 1 1
+plasma.u_mean = 0.0 0.0 0.
+plasma.element = electron
+
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez rho jz_beam
+diagnostic.diag_type = xz
