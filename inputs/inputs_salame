@@ -1,13 +1,13 @@
-hipace.file_prefix  = diags/hdf5/recovery/recoveryPositron
-beams.insitu_file_prefix = diags/insitu/recovery/recoveryPositron
-plasmas.insitu_file_prefix = diags/insitu/recovery/recoveryPositron
+hipace.file_prefix  = diags/hdf5/recovery/salame3
+beams.insitu_file_prefix = diags/insitu/recovery/salame3
+plasmas.insitu_file_prefix = diags/insitu/recovery/salame3
 
 amr.n_cell = 511 511 512
 
 hipace.normalized_units = 1   # using normalized units. = 0 means SI units
 hipace.verbose = 1          # amount of information that the simulation is printing
 
-diagnostic.diag_type = xyz # xz
+diagnostic.diag_type = xz
 diagnostic.field_data = Bx By Bz ExmBy EypBx Ez jx jx_beam jy jy_beam jz_beam rho
 amr.max_level = 0           # no mesh refinement
 
@@ -36,18 +36,18 @@ drive.position_mean = 0.0 0. 0
 drive.position_std = 0.05 0.05 1.41      # rms beam size
 
 witness.injection_type = fixed_weight
-witness.num_particles = 750000 # 00
+witness.num_particles = 750000 # 1.25e6 #  00
 witness.element = positron
-witness.density = 260  #  350.
+witness.density = 260 # 304.6 #  350.
 witness.u_mean = 0. 0. 2000
 witness.u_std = 3.448275862 3.448275862 0  #4. 4. 0.
 witness.position_mean = 0. 0.0 -11.57
 witness.position_std = 0.029 0.029 0.5 # 0.025 0.025 0.5
 witness.do_symmetrize = 1
 witness.n_subcycles = 10
-#witness.zmin = -14.1
-#witness.zmax = -9.1
-#witness.do_salame = 1
+# witness.zmin = -14.2
+# witness.zmax = -9.0
+# witness.do_salame = 1
 
 witness2.injection_type = fixed_weight
 witness2.num_particles = 500000 # 00
@@ -66,17 +66,17 @@ recovery.injection_type = fixed_weight
 #recovery.input_file = diags/hdf5/salame/openpmd_%T.h5
 #recovery.iteration = 1
 #recovery.openPMD_species_name = recovery
-recovery.element = positron
+recovery.element = electron
 recovery.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
-recovery.num_particles =  0.75e6 # 1000000 # 00
-recovery.density = 304.6 # 1600 # 800
+recovery.num_particles =  1000000 # 00
+recovery.density = 1600 # 800
 recovery.u_mean = 0. 0. 2000                # ~ 1 GeV
 recovery.u_std = 3.535533906 3.535533906 0.
-recovery.position_mean = 0.0 0. -23.8 # -17.5
-recovery.position_std = 0.05 0.05 0.3525    # rms beam size
+recovery.position_mean = 0.0 0. -21.25
+recovery.position_std = 0.075 0.075 0.25 # .029 .029 .25    # rms beam size
 recovery.n_subcycles = 10
-recovery.zmin = -27
-recovery.zmax = -21.305
+recovery.zmin = -22.75
+recovery.zmax = -19.75
 recovery.do_salame = 1
 
 plasmas.names = electrons ions # names of the plasma species
