@@ -1,13 +1,15 @@
-# my_constants.ne = 1e23 # m^-3
-# my_constants.wp = sqrt( ne * q_e^2/(m_e *epsilon0) )
+my_constants.n0 = 7.8e21 # m^-3
+my_constants.wp = sqrt( n0 * q_e^2/(m_e *epsilon0) )
+my_constants.kp_inv = clight/wp
+my_constants.kp = wp/clight
 
-hipace.file_prefix  = diags/hdf5/recovery/domainNo
-beams.insitu_file_prefix = diags/insitu/recovery/domainNo
-plasmas.insitu_file_prefix = diags/insitu/recovery/domainNo
+hipace.file_prefix  = diags/hdf5/recovery/HiEff
+beams.insitu_file_prefix = diags/insitu/recovery/HiEff
+plasmas.insitu_file_prefix = diags/insitu/recovery/HiEff
 
-amr.n_cell = 511 511 512
+amr.n_cell = 1023 1023 1024 # 511 511 512
 
-hipace.normalized_units = 1   # using normalized units. = 0 means SI units
+hipace.normalized_units = 0   # using normalized units. = 0 means SI units
 hipace.verbose = 1          # amount of information that the simulation is printing
 
 diagnostic.diag_type = xz
@@ -20,46 +22,40 @@ hipace.dt = adaptive          # adaptive time step, could also be a number, like
 diagnostic.output_period = 1  # period of the output, first and last step are always written to file
 
 
-hipace.depos_order_xy = 2     # numerical parameter, not relevant for you
+hipace.depos_order_xy = 2
 
-geometry.is_periodic = 1     1     0        # whether the particle boundary conditions are periodic in x,y,z
-geometry.prob_lo     = -16.   -16.   -34    # physical domain in x,y,z
-geometry.prob_hi     =  16.    16.    6
+geometry.is_periodic = 1     1     0
+geometry.prob_lo     = -16.*kp_inv   -16.*kp_inv   -34.*kp_inv    # physical domain in x,y,z
+geometry.prob_hi     =  16.*kp_inv    16.*kp_inv     6.*kp_inv
 
-beams.names = drive witness witness2 recovery # recovery2
+beams.names = drive witness # recovery
 beams.insitu_period = 1
 
 drive.profile = gaussian               # Gaussian beam
 drive.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
 drive.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
-drive.num_particles =  1000000 # 00       # this is a large number, can be reduced significantly for lower resolutions
-drive.density = 800
-drive.u_mean = 0. 0. 10000               # ~ 5 GeV
-drive.u_std = 3.535533906 3.535533906 0. # matched to the blowout
-drive.position_mean = 0.0 0. 0
-drive.position_std = 0.05 0.05 1.41      # rms beam size
+drive.num_particles =  1000000
+# drive.density = 23 * n0
+drive.total_charge = 534.e-12
+drive.u_mean = 0. 0. 4892.377958934683    # 2.5 GeV
+drive.u_std = 3.535533906 3.535533906 0.
+drive.position_mean = 0. 0. 0.
+drive.position_std = 5.e-6 5.e-6 40.e-6      # rms beam size
 
+witness.profile = can
 witness.injection_type = fixed_weight
-witness.num_particles = 750000 # 00
+witness.num_particles = 1000000
 witness.element = positron
-witness.density = 260  #  350.
-witness.u_mean = 0. 0. 2000
-witness.u_std = 3.448275862 3.448275862 0  #4. 4. 0.
-witness.position_mean = 0. 0.0 -11.57
-witness.position_std = 0.029 0.029 0.5 # 0.025 0.025 0.5
+# witness.density = 100 * n0
+witness.total_charge = 102.e-12
+witness.u_mean = 0. 0. 4892.377958934683  # 2.5 GeV
+witness.u_std = 3.448275862 3.448275862 0
+witness.position_mean = 0. 0.0 -306.e-6
+witness.position_std = 2.e-6 2.e-6 0.15090512100343362*kp_inv
 witness.do_symmetrize = 1
 witness.n_subcycles = 10
-
-witness2.injection_type = fixed_weight
-witness2.num_particles = 500000 # 00
-witness2.element = positron
-witness2.density = 44.6 # 60.
-witness2.u_mean = 0. 0. 2000
-witness2.u_std = 3.448275862 3.448275862 0  #4. 4. 0.
-witness2.position_mean = 0. 0.0 -11.3
-witness2.position_std = 0.029 0.029 0.2 #0.025 0.025 0.2
-witness2.do_symmetrize = 1
-witness2.n_subcycles = 10
+witness.zmin =  -9.586131475196094*kp_inv
+witness.zmax = -8.077080265161758*kp_inv
 
 recovery.profile = gaussian
 recovery.injection_type = from_file # fixed_weight
@@ -77,12 +73,12 @@ recovery.position_std = 0.029 0.029  .25 # .25 # 0.3525 # 0.25 0.65    # rms bea
 plasmas.names = electrons ions # names of the plasma species
 plasmas.insitu_period = 1
 electrons.element = electron
-electrons.density(x,y,z) = 1.
-electrons.radius = 2.5
+electrons.density(x,y,z) = n0
+# electrons.radius = 2.5*kp_inv
 electrons.ppc = 5 5
-electrons.temperature_in_ev = 15
+# electrons.temperature_in_ev = 15
 ions.charge = 1
 ions.mass = 7349.388355 # Helium, note that this could have also be via ions.element = He and specifying the ionization level to 1
-ions.density(x,y,z) = 1.
-ions.radius = 2.5
+ions.density(x,y,z) = n0
+# ions.radius = 2.5*kp_inv
 ions.ppc = 5 5

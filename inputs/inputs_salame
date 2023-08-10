@@ -1,14 +1,14 @@
-hipace.file_prefix  = diags/hdf5/recovery/salame3
-beams.insitu_file_prefix = diags/insitu/recovery/salame3
-plasmas.insitu_file_prefix = diags/insitu/recovery/salame3
+hipace.file_prefix  = diags/hdf5/recovery/forward
+beams.insitu_file_prefix = diags/insitu/recovery/forward
+plasmas.insitu_file_prefix = diags/insitu/recovery/forward
 
-amr.n_cell = 511 511 512
+amr.n_cell = 1023 1023 1024 # 511 511 512
 
 hipace.normalized_units = 1   # using normalized units. = 0 means SI units
 hipace.verbose = 1          # amount of information that the simulation is printing
 
 diagnostic.diag_type = xz
-diagnostic.field_data = Bx By Bz ExmBy EypBx Ez jx jx_beam jy jy_beam jz_beam rho
+diagnostic.field_data = ExmBy Ez # Bx By Bz ExmBy EypBx Ez jx jx_beam jy jy_beam jz_beam rho
 amr.max_level = 0           # no mesh refinement
 
 max_step = 0                  # = 0 means that only the plasma response to the initial beam is simulated
@@ -72,11 +72,11 @@ recovery.num_particles =  1000000 # 00
 recovery.density = 1600 # 800
 recovery.u_mean = 0. 0. 2000                # ~ 1 GeV
 recovery.u_std = 3.535533906 3.535533906 0.
-recovery.position_mean = 0.0 0. -21.25
-recovery.position_std = 0.075 0.075 0.25 # .029 .029 .25    # rms beam size
+recovery.position_mean = 0.0 0. -20. # -21.25
+recovery.position_std = 0.029 0.029 0.25 # .029 .029 .25    # rms beam size
 recovery.n_subcycles = 10
 recovery.zmin = -22.75
-recovery.zmax = -19.75
+recovery.zmax = -19 # -19.75
 recovery.do_salame = 1
 
 plasmas.names = electrons ions # names of the plasma species
