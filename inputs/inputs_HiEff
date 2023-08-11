@@ -7,7 +7,7 @@ hipace.file_prefix  = diags/hdf5/recovery/HiEff
 beams.insitu_file_prefix = diags/insitu/recovery/HiEff
 plasmas.insitu_file_prefix = diags/insitu/recovery/HiEff
 
-amr.n_cell = 1023 1023 1024 # 511 511 512
+amr.n_cell = 511 511 512
 
 hipace.normalized_units = 0   # using normalized units. = 0 means SI units
 hipace.verbose = 1          # amount of information that the simulation is printing
@@ -25,8 +25,8 @@ diagnostic.output_period = 1  # period of the output, first and last step are al
 hipace.depos_order_xy = 2
 
 geometry.is_periodic = 1     1     0
-geometry.prob_lo     = -16.*kp_inv   -16.*kp_inv   -34.*kp_inv    # physical domain in x,y,z
-geometry.prob_hi     =  16.*kp_inv    16.*kp_inv     6.*kp_inv
+geometry.prob_lo     = -8.*kp_inv   -8.*kp_inv   -34.*kp_inv    # physical domain in x,y,z
+geometry.prob_hi     =  8.*kp_inv    8.*kp_inv     6.*kp_inv
 
 beams.names = drive witness # recovery
 beams.insitu_period = 1
@@ -77,7 +77,7 @@ electrons.density(x,y,z) = n0
 # electrons.radius = 2.5*kp_inv
 electrons.ppc = 5 5
 # electrons.temperature_in_ev = 15
-ions.charge = 1
+ions.charge = +q_e
 ions.mass = 7349.388355 # Helium, note that this could have also be via ions.element = He and specifying the ionization level to 1
 ions.density(x,y,z) = n0
 # ions.radius = 2.5*kp_inv
