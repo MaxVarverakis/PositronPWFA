@@ -26,6 +26,7 @@ class Functions():
         self.maskD, self.maskW, self.maskR = self.bunchMask(self.iteration, self.recovery)
         self.rho = self.ts.get_field(field = 'rho', iteration = self.iteration, coord = 'z')[0]
         self.jz_beam = self.ts.get_field(field = 'jz_beam', iteration = self.iteration, coord = 'z')[0]
+        self.profile = abs(self.getZ(self.jz_beam, self.info))
 
     def customCMAP(self, names = ['RdBu', 'PuOr', 'PRGn', 'bwr', 'bwr_r', 'PuOr_r'], ncolors: int = 256):
         for cmap in names:
