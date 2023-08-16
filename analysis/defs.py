@@ -332,7 +332,7 @@ class Functions():
             plt.plot(self.info.z[self.maskR], nR, 'r', alpha = .5)
 
 
-        return nD, self.info.z[self.maskD], nW, self.info.z[self.maskW], nR, self.info.z[self.maskR]
+        return nD, nW, nR
 
     def emittance(self, sigma_x, sigma_ux, normalized: bool):
         """
