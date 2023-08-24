@@ -8,7 +8,7 @@ from scipy import constants
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import sys
-sys.path.append('/Users/max/HiPACE/hipace/tools/')
+sys.path.append("/Users/max/HiPACE/hipace/tools/")
 import read_insitu_diagnostics as diag
 
 class Functions():
@@ -85,7 +85,7 @@ class Functions():
         Returns
         -------
         p : float
-            momentum in HiPACE++ input file units
+            momentum in HiPACE++ input file units (basically just normalized to m_e*c)
         """
         pG *= 1e9 * constants.e / constants.c # 1 [GeV/c] = eV / (m/s) = kg m / s
 
@@ -340,16 +340,15 @@ class Functions():
 
         Parameters
         ----------
+        sigma_ux : float
+            transverse momentum std (normalized to m_e*c)
         normalized : bool
-            If True, assumes sigma_x and sigma_ux are normalized by the skin depth and m_e*c, respectively.
-        n0 : float
-            Plasma density (in cm^-3)
+            If True, assumes sigma_x is normalized by the skin depth
         """
-
         if normalized:
-            return sigma_x * self.kp_inv * sigma_ux # m rad
-        else:
-            return sigma_x * sigma_ux # m rad
+            sigma_x *= self.kp_inv
+
+        return sigma_x * sigma_ux # m rad
 
     def ux(self, eps_x, sigma_x, normalized: bool):
         """
@@ -361,8 +360,6 @@ class Functions():
             normalized transverse emittance (in m rad)
         normalized : bool
             If True, assumes sigma_x is normalized by the skin depth
-        n0 : float
-            Plasma density (in cm^-3)
         
         Returns
         -------
@@ -370,9 +367,48 @@ class Functions():
             transverse momentum normalized to m_e*c
         """
         if normalized:
-            return eps_x / (sigma_x * self.kp_inv)
-        else:
-            return eps_x / sigma_x
+            sigma_x *= self.kp_inv
 
+        return eps_x / sigma_x
+
+    def kBeta(self, insitu):
+        gamma = insitu['average']['[ga]'][0] # [0] corresponds to the first time step
+        return self.kp / np.sqrt(2 * gamma) # m^-1
+
+    def nt_per_betatron(self, insitu, d: float, steps: int):
+        """
+        NOTE: DO NOT USE
+        
+        Parameters
+        ----------
+        d : float
+            distance to propagate the beam (in m)
+        steps : int
+            number of time steps to propagate the beam
+        """
+        t = (d / constants.c) / steps # s
+        w_beta = self.kBeta(insitu) * constants.c # s^-1
+
+        N = 2 * np.pi / (w_beta * t) # number of time steps per betatron oscillation
+
+        return N
+
+    def epsMatched(self, insitu, normalized: bool, std_x = None):
+        if not std_x:
+            std_x = diag.position_std(insitu['average'])[0] # m or normalized to kp_inv
+        if normalized:
+            std_x *= self.kp_inv
+        beta_m = self.kBeta(insitu)**-1 # m
+        gamma = insitu['average']['[ga]'][0] # [0] corresponds to the first time step
+        
+        eps_n = std_x**2 * gamma / beta_m # m rad
+
+        return eps_n
+
+    def transverse_u_std_matched(self, insitu, normalized: bool, std_x = None):
+        eps_n = self.epsMatched(insitu, normalized)
+        if not std_x:
+            std_x = diag.position_std(insitu['average'])[0] # m or normalized to kp_inv
+        return self.ux(eps_n, std_x, normalized)
 
 

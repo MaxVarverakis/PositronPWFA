@@ -1,11 +1,17 @@
-my_constants.n1 = 4.23e20
-my_constants.kp = 53225.01855950024 # m^-1
+
+my_constants.n0 = 8.e22 # m^-3
+my_constants.n1 = 4.23e20 # m^-3
+my_constants.wp = sqrt( n0 * q_e^2/(m_e *epsilon0) )
 my_constants.pi = "atan(1.0) * 4.0"
+my_constants.kp_inv = clight/wp
+# my_constants.kp = wp/clight
+
+# my_constants.kp = 53225.01855950024 # m^-1
 # my_constants.xi0 = "pi / (3 * kp)"
 # my_constants.l = "sqrt(3) / kp"
 # my_constants.sigma = "3 * l / (8 * sqrt(2 * pi))"
 
-amr.n_cell = 511 511 512 # 1023 1023 1024 # 
+amr.n_cell = 511 511 512
 
 hipace.file_prefix  = diags/hdf5/linearSI/LoadedGaussian
 beams.insitu_file_prefix = diags/insitu/linearSI/LoadedGaussian
@@ -34,7 +40,7 @@ beam.element = electron
 beam.profile = gaussian
 beam.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
 beam.num_particles = 4e7
-beam.density = "n1" # m^-3
+beam.density = n1 # m^-3
 beam.u_mean = 0. 0. 19569.511835738733 # 10 GeV
 beam.u_std = 0. 0. 0.
 beam.position_mean = 0.0 0. 0
@@ -45,14 +51,14 @@ witness.profile = gaussian
 witness.element = electron
 witness.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
 witness.num_particles = 4e7
-witness.density = "n1" # "(-n1 * sin(kp * xi0))" # m^-3
+witness.density = n1 # "(-n1 * sin(kp * xi0))" # m^-3
 witness.u_mean = 0. 0. 19569.511835738733
 witness.u_std = 0. 0. 0.
-witness.position_mean = 0.0 0. "-3 * (1 / kp) * pi" # -5.902473570916292e-05 # "xi0 - l / 2 - 100e-6"
+witness.position_mean = 0.0 0. "-3 * kp_inv * pi" # -5.902473570916292e-05 # "xi0 - l / 2 - 100e-6"
 witness.position_std = 20.e-6 20.e-6 15e-6
 
 plasmas.names = plasma
-plasma.density(x,y,z) = 8.e22 # m^-3
+plasma.density(x,y,z) = n0
 plasma.ppc = 1 1
 plasma.u_mean = 0.0 0.0 0.
 plasma.element = electron
