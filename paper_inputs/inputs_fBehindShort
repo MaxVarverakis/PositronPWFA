@@ -1,0 +1,92 @@
+#my_constants.ne = 1e23 # m^-3
+#my_constants.wp = sqrt( ne * q_e^2/(m_e *epsilon0) )
+
+hipace.file_prefix  = diags/hdf5/fBShort
+beams.insitu_file_prefix = diags/insitu/fBShort
+plasmas.insitu_file_prefix = diags/insitu/fBShort
+
+amr.n_cell = 1023 1023 2048
+amr.max_level = 0        # no mesh refinement
+
+max_step = 0
+hipace.normalized_units = 1
+hipace.verbose = 1
+
+diagnostic.diag_type = xz
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez jx jx_beam jy jy_beam jz_beam rho
+
+#hipace.max_time = (0.1/clight) * wp # 0.1 kp
+hipace.dt = adaptive          # adaptive time step, could also be a number, like 5 in normalized units or 5e-13 in SI units
+diagnostic.output_period = 1  # period of the output, first and last step are always written to file
+# hipace.nt_per_betatron = 30
+
+hipace.depos_order_xy = 2     # numerical parameter, not relevant for you
+
+geometry.is_periodic = 1     1     0        # whether the particle boundary conditions are periodic in x,y,z
+geometry.prob_lo     = -16.   -16. -24.
+geometry.prob_hi     =  16.    16.   6.
+
+beams.names = drive witness recovery
+beams.insitu_period = 1
+
+drive.profile = gaussian
+drive.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
+drive.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+drive.num_particles =  1.e6
+drive.density = 800
+drive.u_mean = 0. 0. 10000               # ~ 5 GeV
+drive.u_std = 3.5286668148540654 3.5286668148540654 0. # matched to the blowout
+drive.position_mean = 0.0 0. 0
+drive.position_std = 0.05 0.05 1.41      # rms beam size
+#drive.zmin = -2.
+#drive.zmax = 2.
+#drive.do_salame = 1
+
+witness.injection_type = from_file
+witness.profile = can
+witness.input_file = /home/mvarvera/HiPACE++/diags/hdf5/fNone/openpmd_%T.h5
+witness.openPMD_species_name = witness
+witness.iteration = 0
+witness.num_particles = 1.25e6 
+witness.element = positron
+witness.density = 304.6
+witness.u_mean = 0. 0. 2000
+witness.u_std = 0.9159222987211391 0.9159222987211391 0.
+witness.position_mean = 0. 0.0 -11.57
+witness.position_std = 0.029 0.029 0.5 # 0.025 0.025 0.5
+witness.do_symmetrize = 1
+witness.n_subcycles = 10
+#witness.zmin = -15.1 # -14.
+#witness.zmax = -13.25
+#witness.do_salame = 1
+
+recovery.profile = can
+recovery.injection_type = fixed_weight # from_file # fixed_weight
+#recovery.input_file = diags/hdf5/filamentRSFront/openpmd_%T.h5
+#recovery.openPMD_species_name = recovery
+#recovery.iteration = 0
+recovery.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+recovery.num_particles = 1.e6
+recovery.density = 1600
+recovery.u_mean = 0. 0. 2000                # ~ 1 GeV
+recovery.u_std = 0.9195826896712905 0.9195826896712905 0. # matched to the blowout
+recovery.position_mean = 0.0 0. -7.5 # -20.5
+recovery.position_std = 0.029 0.029 0.25 # 0.65    # rms beam size
+recovery.zmin = -22.5
+recovery.zmax = -20.
+recovery.do_salame = 1
+
+plasmas.do_symmetrize = 1
+plasmas.names = electrons ions # names of the plasma species
+plasmas.insitu_period = 1
+electrons.element = electron
+electrons.density(x,y,z) = 1.
+electrons.radius = 2.5
+electrons.ppc = 10 10
+electrons.temperature_in_ev = 15
+ions.charge = 1
+ions.mass = 7349.388355 # Helium, note that this could have also be via ions.element = He and specifying the ionization level to 1
+ions.density(x,y,z) = 1.
+ions.radius = 2.5
+ions.ppc = 2 2
+

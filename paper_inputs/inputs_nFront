@@ -1,0 +1,85 @@
+my_constants.n0 = 7.8e21 # m^-3
+my_constants.wp = sqrt( n0 * q_e^2/(m_e *epsilon0) )
+my_constants.kp_inv = clight/wp
+my_constants.kp = wp/clight
+my_constants.step = 0 # 100
+hipace.file_prefix  = diags/hdf5/nFront
+beams.insitu_file_prefix = diags/insitu/nFront
+plasmas.insitu_file_prefix = diags/insitu/nFront
+
+amr.n_cell = 1023 1023 1024
+
+hipace.normalized_units = 0   # using normalized units. = 0 means SI units
+hipace.verbose = 1          # amount of information that the simulation is printing
+
+diagnostic.diag_type = xz
+diagnostic.field_data = Bx By Bz ExmBy EypBx Ez jx jx_beam jy jy_beam jz_beam rho
+amr.max_level = 0           # no mesh refinement
+
+max_step = step
+#hipace.max_time = 0.2/clight
+hipace.dt = adaptive # (.2/clight)/step # adaptive
+diagnostic.output_period = 1  # period of the output, first and last step are always written to file
+hipace.nt_per_betatron = 30
+
+hipace.depos_order_xy = 2
+
+geometry.is_periodic = 1     1     0
+geometry.prob_lo     = -6.*kp_inv   -6.*kp_inv   -15.*kp_inv
+geometry.prob_hi     =  6.*kp_inv    6.*kp_inv     6.*kp_inv
+
+beams.names = drive witness recovery
+beams.insitu_period = 1
+
+drive.profile = gaussian               # Gaussian beam
+drive.injection_type = fixed_weight    # fixed_weight for random beam with equal weights
+drive.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+drive.num_particles =  1.e6
+# drive.density = 23 * n0
+drive.total_charge = 534.e-12
+drive.u_mean = 0. 0. 4892.377958934683    # 2.5 GeV
+drive.u_std =  .5 .5 0. # 4.101895420426383 4.101895420426383 0.
+drive.position_mean = 0. 0. 0.
+drive.position_std = 5.e-6 5.e-6 40.e-6      # rms beam size
+
+recovery.profile = can
+recovery.injection_type = fixed_weight
+#recovery.input_file = /home/mvarvera/HiPACE++/diags/hdf5/nFrontRS/openpmd_%T.h5
+#recovery.openPMD_species_name = recovery
+#recovery.iteration = 0
+recovery.do_symmetrize = 1                # symmetrize the beam to suppress hosing due to numerical noise
+recovery.num_particles = 1.e6
+recovery.total_charge = 84.e-12
+recovery.u_mean = 0. 0. 4892.377958934683    # 2.5 GeV
+recovery.u_std = 2.5 2.5 0. # 4.104220290542366 4.104220290542366 0.
+recovery.position_mean = 0.0 0. -5.2*kp_inv 
+recovery.position_std = 3.e-6 3.e-6 .15*kp_inv
+recovery.zmin = -4.5*kp_inv
+recovery.zmax = -3.5*kp_inv
+recovery.do_salame = 1
+
+witness.profile = gaussian
+witness.injection_type = fixed_weight
+witness.num_particles = 1.e6
+witness.element = positron
+witness.total_charge = 102.e-12
+witness.u_mean = 0. 0. 4892.377958934683  # 2.5 GeV
+witness.u_std = 3 3 0. # 1.6466176200516716 1.6466176200516716 0.
+witness.position_mean = 0. 0.0 -6.*kp_inv # -306.e-6
+witness.position_std = 2.e-6 2.e-6 1.*kp_inv # .375
+witness.do_symmetrize = 1
+witness.n_subcycles = 10
+witness.zmin = -7.*kp_inv # -8.*kp_inv
+witness.zmax = -5.25*kp_inv
+# witness.do_salame = 1
+
+plasmas.names = electrons ions
+plasmas.insitu_period = 1
+electrons.element = electron
+electrons.density(x,y,z) = n0
+electrons.ppc = 5 5
+ions.charge = +q_e
+ions.mass = 7349.388355 # Helium, note that this could have also be via ions.element = He and specifying the ionization level to 1
+ions.density(x,y,z) = n0
+ions.ppc = 5 5
+

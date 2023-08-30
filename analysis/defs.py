@@ -27,6 +27,7 @@ class Functions():
         self.rho = self.ts.get_field(field = 'rho', iteration = self.iteration, coord = 'z')[0]
         self.jz_beam = self.ts.get_field(field = 'jz_beam', iteration = self.iteration, coord = 'z')[0]
         self.profile = abs(self.getZ(self.jz_beam, self.info))
+        self.nD, self.nW, self.nR = self.getProfile(self.iteration)
 
     def customCMAP(self, names = ['RdBu', 'PuOr', 'PRGn', 'bwr', 'bwr_r', 'PuOr_r'], ncolors: int = 256):
         for cmap in names:
@@ -145,7 +146,7 @@ class Functions():
         q : float
             normalized charge
         ne : float
-            plasma electron density (in m^-3).  Defaults to 1e23 m^-3
+            plasma electron density (in cm^-3).
 
         Returns
         -------
@@ -156,6 +157,8 @@ class Functions():
         
         if not ne:
             ne = self.n0
+
+        ne *= 1e6 # cm^-3 -> m^-3
 
         q0 = constants.c**3 * constants.epsilon_0**(3/2) * constants.m_e**(3/2) / (np.sqrt(ne) * constants.e**2)
         
