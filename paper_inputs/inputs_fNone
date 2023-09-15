@@ -3,16 +3,16 @@ my_constants.wp = sqrt( ne * q_e^2/(m_e *epsilon0) )
 my_constants.kp = wp/clight
 #my_constants.gamma = 2000.0006714044812
 #my_constants.w_beta = wp / sqrt(2. * gamma)
-my_constants.steps = 100
+my_constants.steps = 0 # 100
 
-hipace.file_prefix  = diags/hdf5/fNone
-beams.insitu_file_prefix = diags/insitu/fNone
-plasmas.insitu_file_prefix = diags/insitu/fNone
+hipace.file_prefix  = diags/hdf5/fNoneTest
+beams.insitu_file_prefix = diags/insitu/fNoneTest
+plasmas.insitu_file_prefix = diags/insitu/fNoneTest
 
-amr.n_cell = 2047 2047 3048
+amr.n_cell = 1023 1023 1024 # 511 511 512 # 2047 2047 3048
 amr.max_level = 0        # no mesh refinement
 
-max_step = 0 # steps
+max_step = steps
 hipace.normalized_units = 1
 hipace.verbose = 1
 
@@ -24,9 +24,9 @@ diagnostic.output_period = 1  # period of the output, first and last step are al
 
 hipace.depos_order_xy = 2     # numerical parameter, not relevant for you
 
-geometry.is_periodic = 1     1     0        # whether the particle boundary conditions are periodic in x,y,z
-geometry.prob_lo     = -16.   -16.  -24.
-geometry.prob_hi     =  16.    16.    6.
+geometry.is_periodic = 0 0 0 # 1     1     0        # whether the particle boundary conditions are periodic in x,y,z
+geometry.prob_lo     =  -16.   -16.  -24.
+geometry.prob_hi     =   16.    16.    6.
 
 beams.names = drive witness
 beams.insitu_period = 1
@@ -47,8 +47,8 @@ drive.position_std = 0.05 0.05 1.41      # rms beam size
 witness.injection_type = fixed_weight
 witness.profile = can
 #witness.input_file = /home/mvarvera/HiPACE++/diags/hdf5/fNone/openpmd_%T.h5
-witness.openPMD_species_name = witness
-witness.iteration = 0
+#witness.openPMD_species_name = witness
+#witness.iteration = 0
 witness.num_particles = 1.25e6 
 witness.element = positron
 witness.density = 304.6
@@ -70,6 +70,7 @@ electrons.density(x,y,z) = 1.
 electrons.radius = 2.5
 electrons.ppc = 10 10
 electrons.temperature_in_ev = 15
+#electrons.insitu_radius = 10.
 ions.charge = 1
 ions.mass = 7349.388355 # Helium, note that this could have also be via ions.element = He and specifying the ionization level to 1
 ions.density(x,y,z) = 1.

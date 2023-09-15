@@ -48,13 +48,13 @@ witness.element = positron
 witness.total_charge = 102.e-12
 witness.u_mean = 0. 0. 4892.377958934683  # 2.5 GeV
 witness.u_std = 3. 3. 0.
-witness.position_mean = 0. 0.0 -306.e-6
-witness.position_std = 2.e-6 2.e-6 0.15090512100343362*kp_inv
+witness.position_mean = 0. 0.0 -5.4*kp_inv # -306.e-6
+witness.position_std = 2.e-6 2.e-6 .8*kp_inv # 0.15090512100343362*kp_inv
 witness.do_symmetrize = 1
 witness.n_subcycles = 10
 witness.zmin =  (-9.586131475196094 + 3.) * kp_inv
 witness.zmax = (-8.077080265161758 + 3.) * kp_inv
-# witness.do_salame = 1
+#witness.do_salame = 1
 
 plasmas.names = electrons ions # names of the plasma species
 plasmas.insitu_period = 1
