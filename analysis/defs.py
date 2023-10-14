@@ -8,11 +8,15 @@ from scipy import constants
 # from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import sys
-sys.path.append("/Users/max/HiPACE/hipace/tools/")
-import read_insitu_diagnostics as diag
 
 class Functions():
-    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, check = True):
+    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, check = True, src_path = '/Users/max/HiPACE'):
+        # src_path points to the HiPACE++ source code directory typically titled `hipace`
+        
+        sys.path.append(src_path + '/hipace/tools/')
+        import read_insitu_diagnostics as diag
+        self.diag = diag
+        
         self.n0 = n0 # cm^-3
         self.iteration = iteration
         self.normalized = normalized
@@ -28,6 +32,8 @@ class Functions():
         self.jz_beam = self.ts.get_field(field = 'jz_beam', iteration = self.iteration, coord = 'z')[0]
         self.profile = abs(self.getZ(self.jz_beam, self.info))
         self.nD, self.nW, self.nR = self.getProfile(self.iteration)
+
+        self.IA = constants.m_e * constants.c**3 / constants.e
 
     def customCMAP(self, names = ['RdBu', 'PuOr', 'PRGn', 'bwr', 'bwr_r', 'PuOr_r'], ncolors: int = 256):
         for cmap in names:
@@ -186,11 +192,11 @@ class Functions():
         return maskD, maskW, maskR
 
     def insitu(self, insitu_path, recovery: bool):
-        driveInsitu = diag.read_file(insitu_path + 'reduced_drive.0000.txt')
-        witnessInsitu = diag.read_file(insitu_path + 'reduced_witness.0000.txt')
+        driveInsitu = self.diag.read_file(insitu_path + 'reduced_drive.0000.txt')
+        witnessInsitu = self.diag.read_file(insitu_path + 'reduced_witness.0000.txt')
 
         if recovery:
-            recoveryInsitu = diag.read_file(insitu_path + 'reduced_recovery.0000.txt')
+            recoveryInsitu = self.diag.read_file(insitu_path + 'reduced_recovery.0000.txt')
         else:
             recoveryInsitu = np.zeros_like(driveInsitu)
 
@@ -225,9 +231,9 @@ class Functions():
 
         # driveInsitu, witnessInsitu, recoveryInsitu = self.insitu(insitu_path, recovery)
 
-        Qd_slices = diag.per_slice_charge(self.driveInsitu)[i]
-        Qw_slices = diag.per_slice_charge(self.witnessInsitu)[i]
-        Qr_slices = diag.per_slice_charge(self.recoveryInsitu)[i]
+        Qd_slices = self.diag.per_slice_charge(self.driveInsitu)[i]
+        Qw_slices = self.diag.per_slice_charge(self.witnessInsitu)[i]
+        Qr_slices = self.diag.per_slice_charge(self.recoveryInsitu)[i]
 
         Ez_raw, info = self.ts.get_field(field = 'Ez', iteration = i, coord = 'z')
         
@@ -273,7 +279,7 @@ class Functions():
 
         # driveInsitu, witnessInsitu, recoveryInsitu = insitu(insitu_path, recovery)
 
-        z = diag.z_axis(self.driveInsitu)
+        z = self.diag.z_axis(self.driveInsitu)
 
         EzDrive, infoD = self.ts.get_field(field = 'Ez_driver_diag', iteration = i)
         EzWitness, infoW = self.ts.get_field(field = 'Ez_witness_diag', iteration = i)
@@ -282,7 +288,7 @@ class Functions():
             EzRecovery, infoR = self.ts.get_field(field = 'Ez_recovery_diag', iteration = i)
             maskR = np.logical_and(z >= infoR.zmin, z <= infoR.zmax)
             EzR = np.array([np.mean(EzRecovery[i,:,:]) for i in range(EzRecovery.shape[0])])
-            Qr_slices = diag.per_slice_charge(self.recoveryInsitu)[i][maskR]
+            Qr_slices = self.diag.per_slice_charge(self.recoveryInsitu)[i][maskR]
             r = EzR @ Qr_slices
         else:
             r = 0
@@ -294,8 +300,8 @@ class Functions():
         maskD = np.logical_and(z >= infoD.zmin, z <= infoD.zmax)
         maskW = np.logical_and(z >= infoW.zmin, z <= infoW.zmax)
 
-        Qd_slices = diag.per_slice_charge(self.driveInsitu)[i][maskD]
-        Qw_slices = diag.per_slice_charge(self.witnessInsitu)[i][maskW]
+        Qd_slices = self.diag.per_slice_charge(self.driveInsitu)[i][maskD]
+        Qw_slices = self.diag.per_slice_charge(self.witnessInsitu)[i][maskW]
 
         # print(Qd_slices.shape, Qw_slices.shape, Qr_slices.shape)
         # print(EzD.shape, EzW.shape)
@@ -398,7 +404,7 @@ class Functions():
 
     def epsMatched(self, insitu, normalized: bool, std_x = None):
         if not std_x:
-            std_x = diag.position_std(insitu['average'])[0] # m or normalized to kp_inv
+            std_x = self.diag.position_std(insitu['average'])[0] # m or normalized to kp_inv
         if normalized:
             std_x *= self.kp_inv
         beta_m = self.kBeta(insitu)**-1 # m
@@ -411,7 +417,7 @@ class Functions():
     def transverse_u_std_matched(self, insitu, normalized: bool, std_x = None):
         eps_n = self.epsMatched(insitu, normalized)
         if not std_x:
-            std_x = diag.position_std(insitu['average'])[0] # m or normalized to kp_inv
+            std_x = self.diag.position_std(insitu['average'])[0] # m or normalized to kp_inv
         return self.ux(eps_n, std_x, normalized)
 
 
