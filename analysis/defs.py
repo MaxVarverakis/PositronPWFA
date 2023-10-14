@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from openpmd_viewer import OpenPMDTimeSeries
-from openpmd_viewer.addons import LpaDiagnostics
+# from openpmd_viewer.addons import LpaDiagnostics
 from scipy import constants
 
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+# from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import sys
 sys.path.append("/Users/max/HiPACE/hipace/tools/")
