@@ -3,19 +3,30 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy import constants
 
-plt.rc('text', usetex = True)
+# plt.rc('text', usetex = True)
 plt.rcParams['figure.figsize'] = [10.0, 6.0]
 plt.rcParams['font.size'] = 18
+# plt.style.use('classic')
 
-def x_centroidPlot(class_name, show, save_name = ''):
-    plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.driveInsitu['average']['[x]'], label = 'Drive Beam', c = 'r')
-    plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.witnessInsitu['average']['[x]'], label = 'Witness Beam', c = 'b')
-    plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.recoveryInsitu['average']['[x]'], label = 'Recovery Beam', c = 'g')
-    plt.xlabel('Distance Propagated [m]')
-    plt.ylabel('$k_p\\bar{x}$')
-    plt.legend()
-    plt.xlim(0, .2)
-    
+
+def x_centroidPlot(class_name, show, regime, save_name = ''):
+    if regime == 'filament':
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.driveInsitu['average']['[x]'], label = 'Drive Beam', c = 'r')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.witnessInsitu['average']['[x]'], label = 'Witness Beam', c = 'b')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.recoveryInsitu['average']['[x]'], label = 'Recovery Beam', c = 'g')
+        plt.xlabel('Distance Propagated [m]')
+        plt.ylabel('$k_p\\bar{x}$')
+        plt.legend()
+        plt.xlim(0, max(class_name.witnessInsitu["time"] * class_name.kp_inv))
+    elif regime == 'uniform':
+        plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.driveInsitu['average']['[x]'], label = 'Drive Beam', c = 'r')
+        plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.witnessInsitu['average']['[x]'], label = 'Witness Beam', c = 'b')
+        plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.recoveryInsitu['average']['[x]'], label = 'Recovery Beam', c = 'g')
+        plt.xlabel('Distance Propagated [m]')
+        plt.ylabel('$k_p\\bar{x}$')
+        plt.legend()
+        plt.xlim(0, max(class_name.witnessInsitu["time"] * constants.c))
+
     if save_name:
         plt.savefig(save_name)
 
@@ -24,6 +35,67 @@ def x_centroidPlot(class_name, show, save_name = ''):
     else:
         plt.close()
     
+def x_emittance_Plot(class_name, show, regime, save_name = ''):
+    if regime == 'filament':
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.diag.emittance_x(class_name.driveInsitu['average']) * class_name.kp_inv * 1e6, label = 'Drive Beam', c = 'r')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.diag.emittance_x(class_name.witnessInsitu['average']) * class_name.kp_inv * 1e6, label = 'Witness Beam', c = 'b')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.diag.emittance_x(class_name.recoveryInsitu['average']) * class_name.kp_inv * 1e6, label = 'Recovery Beam', c = 'g')
+        plt.xlabel('Distance Propagated [m]')
+        plt.ylabel(r'Normalized $x$ Emittance [$\mu$m$\cdot$rad]')
+        plt.legend()
+        plt.xlim(0, max(class_name.witnessInsitu["time"] * class_name.kp_inv))
+    elif regime == 'uniform':
+        plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.diag.emittance_x(class_name.driveInsitu['average']), label = 'Drive Beam', c = 'r')
+        plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.diag.emittance_x(class_name.witnessInsitu['average']), label = 'Witness Beam', c = 'b')
+        plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.diag.emittance_x(class_name.recoveryInsitu['average']), label = 'Recovery Beam', c = 'g')
+        plt.xlabel('Distance Propagated [m]')
+        plt.ylabel(r'Normalized $x$ Emittance [$\mu$m$\cdot$rad]')
+        plt.legend()
+        plt.xlim(0, max(class_name.witnessInsitu["time"] * constants.c))
+
+    if save_name:
+        plt.savefig(save_name)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+def charge_per_time_Plot(class_name, show, regime, save_name = '', diff = False):
+    if diff:
+        s = 1
+    else:
+        s = 0
+    
+    if regime == 'filament':
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, abs(class_name.charge(class_name.diag.total_charge(class_name.driveInsitu) - s * class_name.diag.total_charge(class_name.driveInsitu)[0])) * 1e12, label = 'Drive Beam', c = 'r')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, abs(class_name.charge(class_name.diag.total_charge(class_name.witnessInsitu) - s * class_name.diag.total_charge(class_name.witnessInsitu)[0])) * 1e12, label = 'Witness Beam', c = 'b')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, abs(class_name.charge(class_name.diag.total_charge(class_name.recoveryInsitu) - s * class_name.diag.total_charge(class_name.recoveryInsitu)[0])) * 1e12, label = 'Recovery Beam', c = 'g')
+        plt.xlabel('Distance Propagated [m]')
+        if diff:
+            plt.ylabel(r'$|\Delta Q_{tot}|$ [pC]')
+        else:
+            plt.ylabel(r'$Q_{tot}$ [pC]')
+        plt.legend()
+        plt.xlim(0, max(class_name.witnessInsitu["time"] * class_name.kp_inv))
+    elif regime == 'uniform':
+        print('Not implemented yet!')
+        return
+        # plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.diag.emittance_x(class_name.driveInsitu['average']), label = 'Drive Beam', c = 'r')
+        # plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.diag.emittance_x(class_name.witnessInsitu['average']), label = 'Witness Beam', c = 'b')
+        # plt.plot(class_name.witnessInsitu["time"] * constants.c, class_name.diag.emittance_x(class_name.recoveryInsitu['average']), label = 'Recovery Beam', c = 'g')
+        # plt.xlabel('Distance Propagated [m]')
+        # plt.ylabel(r'Normalized $x$ Emittance [$\mu$m$\cdot$rad]')
+        # plt.legend()
+        # plt.xlim(0, max(class_name.witnessInsitu["time"] * constants.c))
+
+    if save_name:
+        plt.savefig(save_name)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 def frames(steps, prop_dist, frame_dir, path, insitu_path, n0, normalized, src_path, regime):
     # ffmpeg -framerate 30 -i frames_%04d.png fbWOff.mp4
@@ -33,19 +105,27 @@ def frames(steps, prop_dist, frame_dir, path, insitu_path, n0, normalized, src_p
         ylim = 6
 
         for j in range(steps + 1):
+            j += 25
             frameData = defs.Functions(path = path, insitu_path = insitu_path, n0 = n0, iteration = j, normalized = normalized, recovery = True, src_path=src_path)
             
             ax = plt.axes()
             im = plt.pcolormesh(frameData.info.z, frameData.info.x, frameData.ExmBy.T, cmap = 'RdBu') #, vmin = -1, vmax = 1)
-            plt.title(f'Propagated Distance: {j * prop_dist / steps:.2f} cm')
+            # plt.title(f'Propagated Distance: {j * prop_dist / steps:.2f} cm')
 
             plt.pcolormesh(frameData.info.z, frameData.info.x, frameData.jz_beam.T * frameData.IA, cmap = 'RdBuT', vmin = -1e15, vmax = 1e15)
-            plt.plot(frameData.info.z, prof_scale * frameData.profile / max(frameData.profile) - ylim, 'k', alpha = .5)
+            # plt.plot(frameData.info.z, prof_scale * frameData.profile / max(frameData.profile) - ylim, 'k', alpha = .5)
+
+            plt.plot(frameData.info.z, 3 * frameData.profile[j] - 6, 'k', alpha = .5)
+            plt.plot(frameData.info.z, 3 * abs(frameData.profW)[j] - 6, 'b--', alpha = .5)
+            plt.plot(frameData.info.z, 3 * abs(frameData.profR)[j] - 6, 'r--', alpha = .5)
+            # plt.plot(frameData.info.z, 2 * abs((frameData.diag.per_slice_charge(frameData.driveInsitu) + frameData.diag.per_slice_charge(frameData.witnessInsitu) + frameData.diag.per_slice_charge(frameData.recoveryInsitu))[j]) - 6, 'k', alpha = .5)
+            # plt.plot(frameData.info.z, 2 * abs(frameData.diag.per_slice_charge(frameData.witnessInsitu)[j]) - 6, 'b', alpha = .5)
+            # plt.plot(frameData.info.z, 2 * abs(frameData.diag.per_slice_charge(frameData.recoveryInsitu)[j]) - 6, 'r', alpha = .5)
 
             plt.xlim(frameData.info.zmin, frameData.info.zmax)
             plt.ylim(-ylim, ylim)
-            plt.ylabel('$k_px$')
-            plt.xlabel('$k_p\zeta$')
+            plt.ylabel(r'$k_px$')
+            plt.xlabel(r'$k_p\xi$')
 
             ax2 = plt.twinx()
             ax2.plot(frameData.info.z, frameData.Ez, color = 'm')
@@ -123,6 +203,7 @@ if __name__ == '__main__':
 
     if regime == 'filament':
         ne_plasma = 1e17 # cm^-3
+        # d = 'behindProp'
         d = 'behindOffset/recovery'
     elif regime == 'uniform':
         ne_plasma = 7.8e15 # cm^-3
@@ -131,12 +212,33 @@ if __name__ == '__main__':
     p = f'/Users/max/HiPACE/recovery/{regime}/h5/{d}/'
     ip = f'/Users/max/HiPACE/recovery/{regime}/insitu/{d}/'
 
-    data = defs.Functions(path = p, insitu_path = ip, n0 = ne_plasma, iteration = 0, normalized = n, recovery = True, src_path='/Users/max/HiPACE')
-    data.customCMAP()
+    frameData = defs.Functions(path = p, insitu_path = ip, n0 = ne_plasma, iteration = 0, normalized = n, recovery = True, src_path='/Users/max/HiPACE')
+    frameData.customCMAP()
     
-    # x_centroidPlot(data, True, save_name='')
+    # x_centroidPlot(frameData, show = True, save_name='', regime = regime)
+    # x_emittance_Plot(frameData, show = True, save_name='', regime = regime)
+    # charge_per_time_Plot(frameData, show = True, save_name='', regime = regime, diff = False)
+    charge_per_time_Plot(frameData, show = True, save_name='', regime = regime, diff = True)
 
-    # frames(steps=50, prop_dist=.2, frame_dir='/Users/max/Downloads', path=p, insitu_path=ip, n0=ne_plasma, normalized=n, src_path='/Users/max/HiPACE', regime=regime)
+    # frames(steps=100, prop_dist=.1, frame_dir='/Users/max/Downloads', path=p, insitu_path=ip, n0=ne_plasma, normalized=n, src_path='/Users/max/HiPACE', regime=regime)
+
+    # if regime == 'filament':
+        # ne_plasma = 1e17 # cm^-3
+    #     d = 'fBOff'
+    # elif regime == 'uniform':
+    #     ne_plasma = 7.8e15 # cm^-3
+    #     d = 'nBOff'
+
+    # p = f'/home/mvarvera/HiPACE++/diags/hdf5/{d}/'
+    # ip = f'/home/mvarvera/HiPACE++/diags/insitu/{d}/'
+
+    # class_name = defs.Functions(path = p, insitu_path = ip, n0 = ne_plasma, iteration = 0, normalized = n, recovery = True, src_path='/home/mvarvera/src')
+    # class_name.customCMAP()
+
+    # x_centroidPlot(class_name, False, save_name='BOff_W_3', regime = regime)
+
+    # frames(steps=173, prop_dist=0.0865, frame_dir='/home/mvarvera/HiPACE++/frames/fBOff_W', path=p, insitu_path=ip, n0=ne_plasma, normalized=n, src_path='/home/mvarvera/src', regime=regime)
+
 
 
 

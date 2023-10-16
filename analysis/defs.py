@@ -30,8 +30,9 @@ class Functions():
         self.maskD, self.maskW, self.maskR = self.bunchMask(self.iteration, self.recovery)
         self.rho = self.ts.get_field(field = 'rho', iteration = self.iteration, coord = 'z')[0]
         self.jz_beam = self.ts.get_field(field = 'jz_beam', iteration = self.iteration, coord = 'z')[0]
-        self.profile = abs(self.getZ(self.jz_beam, self.info))
-        self.nD, self.nW, self.nR = self.getProfile(self.iteration)
+        self.profD, self.profW, self.profR = (self.diag.per_slice_charge(self.driveInsitu), self.diag.per_slice_charge(self.witnessInsitu), self.diag.per_slice_charge(self.recoveryInsitu))
+        self.profile = abs(self.profD + self.profW + self.profR) # must index [i] for i-th iteration!! # abs(self.getZ(self.jz_beam, self.info))
+        # self.nD, self.nW, self.nR = self.getProfile(self.iteration)
 
         self.IA = constants.m_e * constants.c**3 / constants.e
 
@@ -313,35 +314,35 @@ class Functions():
 
         return eta
 
-    def getProfile(self, iteration: int, plot = False):
-        i = iteration
-        # maskD, maskW, maskR = self.bunchMask(i, self.recovery)
+    # def getProfile(self, iteration: int, plot = False):
+    #     i = iteration
+    #     # maskD, maskW, maskR = self.bunchMask(i, self.recovery)
 
-        # Ez_raw, info = self.ts.get_field(field = 'Ez', iteration = i, coord = 'z')
-        Ez = self.getZ(self.ts.get_field(field = 'Ez', iteration = i, coord = 'z')[0], self.info) # on-axis slice of Ez
-        # zd, wd = self.ts.get_particle(species = 'drive', iteration = i, var_list = ['z', 'w'])
-        # zw, ww = self.ts.get_particle(species = 'witness', iteration = i, var_list = ['z', 'w'])
+    #     # Ez_raw, info = self.ts.get_field(field = 'Ez', iteration = i, coord = 'z')
+    #     Ez = self.getZ(self.ts.get_field(field = 'Ez', iteration = i, coord = 'z')[0], self.info) # on-axis slice of Ez
+    #     # zd, wd = self.ts.get_particle(species = 'drive', iteration = i, var_list = ['z', 'w'])
+    #     # zw, ww = self.ts.get_particle(species = 'witness', iteration = i, var_list = ['z', 'w'])
         
 
-        plt.close()
-        plt.figure(figsize = (10, 6))
-        plt.rcParams['agg.path.chunksize'] = 10000
-        nD = plt.hist(self.zd, bins = len(Ez[self.maskD]), facecolor = 'r', linewidth = 0.2, weights = self.wd)[0]
-        nW = plt.hist(self.zw, bins = (len(Ez[self.maskW])), facecolor = 'b', linewidth = 0.2, weights = self.ww)[0]
-        if self.recovery:
-            # zr, wr = self.ts.get_particle(species = 'recovery', iteration = i, var_list = ['z', 'w'])
-            nR = plt.hist(self.zr, bins = (len(Ez[self.maskR])), facecolor = 'g', linewidth = 0.2, weights = self.wr)[0]
-        else:
-            nR = 0
-        plt.close()
+    #     plt.close()
+    #     plt.figure(figsize = (10, 6))
+    #     plt.rcParams['agg.path.chunksize'] = 10000
+    #     nD = plt.hist(self.zd, bins = len(Ez[self.maskD]), facecolor = 'r', linewidth = 0.2, weights = self.wd)[0]
+    #     nW = plt.hist(self.zw, bins = (len(Ez[self.maskW])), facecolor = 'b', linewidth = 0.2, weights = self.ww)[0]
+    #     if self.recovery:
+    #         # zr, wr = self.ts.get_particle(species = 'recovery', iteration = i, var_list = ['z', 'w'])
+    #         nR = plt.hist(self.zr, bins = (len(Ez[self.maskR])), facecolor = 'g', linewidth = 0.2, weights = self.wr)[0]
+    #     else:
+    #         nR = 0
+    #     plt.close()
 
-        if plot:
-            plt.plot(self.info.z[self.maskD], nD, 'r', alpha = .5)
-            plt.plot(self.info.z[self.maskW], nW, 'r', alpha = .5)
-            plt.plot(self.info.z[self.maskR], nR, 'r', alpha = .5)
+    #     if plot:
+    #         plt.plot(self.info.z[self.maskD], nD, 'r', alpha = .5)
+    #         plt.plot(self.info.z[self.maskW], nW, 'r', alpha = .5)
+    #         plt.plot(self.info.z[self.maskR], nR, 'r', alpha = .5)
 
 
-        return nD, nW, nR
+    #     return nD, nW, nR
 
     def emittance(self, sigma_x, sigma_ux, normalized: bool):
         """
