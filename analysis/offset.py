@@ -22,7 +22,7 @@ if __name__ == '__main__':
     spec = 'bW'
     
     path = f'/Users/max/HiPACE/recovery/filament/h5/offsets/{spec}/'
-    fname = 'openPMD_000000.h5'
+    fname = 'openpmd_000000.h5'
 
     # NOTE Treat this like a loaded weapon... only uncomment when you're ready to fire
     

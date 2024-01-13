@@ -68,12 +68,12 @@ def charge_per_time_Plot(class_name, show, regime, save_name = '', diff = False)
         s = 0
     
     if regime == 'filament':
-        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, abs(class_name.charge(class_name.diag.total_charge(class_name.driveInsitu) - s * class_name.diag.total_charge(class_name.driveInsitu)[0])) * 1e12, label = 'Drive Beam', c = 'r')
-        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, abs(class_name.charge(class_name.diag.total_charge(class_name.witnessInsitu) - s * class_name.diag.total_charge(class_name.witnessInsitu)[0])) * 1e12, label = 'Witness Beam', c = 'b')
-        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, abs(class_name.charge(class_name.diag.total_charge(class_name.recoveryInsitu) - s * class_name.diag.total_charge(class_name.recoveryInsitu)[0])) * 1e12, label = 'Recovery Beam', c = 'g')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.charge(class_name.diag.total_charge(class_name.driveInsitu) - s * class_name.diag.total_charge(class_name.driveInsitu)[0]) * 1e12, label = 'Drive Beam', c = 'r')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.charge(class_name.diag.total_charge(class_name.witnessInsitu) - s * class_name.diag.total_charge(class_name.witnessInsitu)[0]) * 1e12, label = 'Witness Beam', c = 'b')
+        plt.plot(class_name.witnessInsitu["time"] * class_name.kp_inv, class_name.charge(class_name.diag.total_charge(class_name.recoveryInsitu) - s * class_name.diag.total_charge(class_name.recoveryInsitu)[0]) * 1e12, label = 'Recovery Beam', c = 'g')
         plt.xlabel('Distance Propagated [m]')
         if diff:
-            plt.ylabel(r'$|\Delta Q_{tot}|$ [pC]')
+            plt.ylabel(r'$\Delta Q_{tot}$ [pC]')
         else:
             plt.ylabel(r'$Q_{tot}$ [pC]')
         plt.legend()
@@ -101,23 +101,21 @@ def frames(steps, prop_dist, frame_dir, path, insitu_path, n0, normalized, src_p
     # ffmpeg -framerate 30 -i frames_%04d.png fbWOff.mp4
     
     if regime == 'filament':
-        prof_scale = 1.5
         ylim = 6
 
         for j in range(steps + 1):
-            j += 25
             frameData = defs.Functions(path = path, insitu_path = insitu_path, n0 = n0, iteration = j, normalized = normalized, recovery = True, src_path=src_path)
             
             ax = plt.axes()
-            im = plt.pcolormesh(frameData.info.z, frameData.info.x, frameData.ExmBy.T, cmap = 'RdBu') #, vmin = -1, vmax = 1)
-            # plt.title(f'Propagated Distance: {j * prop_dist / steps:.2f} cm')
+            im = plt.pcolormesh(frameData.info.z, frameData.info.x, frameData.ExmBy.T, cmap = 'RdBu', vmin = -1.5, vmax = 1.5)
+            plt.title(f'Propagated Distance: {j *  1e2 * max(frameData.witnessInsitu["time"] * frameData.kp_inv)/ steps:.2f} cm')
 
             plt.pcolormesh(frameData.info.z, frameData.info.x, frameData.jz_beam.T * frameData.IA, cmap = 'RdBuT', vmin = -1e15, vmax = 1e15)
             # plt.plot(frameData.info.z, prof_scale * frameData.profile / max(frameData.profile) - ylim, 'k', alpha = .5)
 
-            plt.plot(frameData.info.z, 3 * frameData.profile[j] - 6, 'k', alpha = .5)
-            plt.plot(frameData.info.z, 3 * abs(frameData.profW)[j] - 6, 'b--', alpha = .5)
-            plt.plot(frameData.info.z, 3 * abs(frameData.profR)[j] - 6, 'r--', alpha = .5)
+            plt.plot(frameData.info.z, 3 * frameData.profile[j] - ylim, 'k', alpha = .5)
+            plt.plot(frameData.info.z, 3 * abs(frameData.profW)[j] - ylim, 'b--', alpha = .5)
+            plt.plot(frameData.info.z, 3 * abs(frameData.profR)[j] - ylim, 'r--', alpha = .5)
             # plt.plot(frameData.info.z, 2 * abs((frameData.diag.per_slice_charge(frameData.driveInsitu) + frameData.diag.per_slice_charge(frameData.witnessInsitu) + frameData.diag.per_slice_charge(frameData.recoveryInsitu))[j]) - 6, 'k', alpha = .5)
             # plt.plot(frameData.info.z, 2 * abs(frameData.diag.per_slice_charge(frameData.witnessInsitu)[j]) - 6, 'b', alpha = .5)
             # plt.plot(frameData.info.z, 2 * abs(frameData.diag.per_slice_charge(frameData.recoveryInsitu)[j]) - 6, 'r', alpha = .5)
@@ -135,9 +133,9 @@ def frames(steps, prop_dist, frame_dir, path, insitu_path, n0, normalized, src_p
             ax2.tick_params(axis='y', colors='m')
 
             divider2 = make_axes_locatable(ax)
-            cax2 = divider2.append_axes("right", size = "4%", pad = .9)
+            cax2 = divider2.append_axes("right", size = "4%", pad = 1.1)
             divider3 = make_axes_locatable(ax2)
-            cax3 = divider3.append_axes("right", size = "4%", pad = .9)
+            cax3 = divider3.append_axes("right", size = "4%", pad = 1.1)
             cax3.remove()
 
 
@@ -146,10 +144,10 @@ def frames(steps, prop_dist, frame_dir, path, insitu_path, n0, normalized, src_p
             # cb2.formatter.set_powerlimits((0, 0))
             cb2.set_label(r'$(E_x - B_y)/E_0 $')
 
-            # plt.show()
+            plt.show()
 
-            plt.savefig(f'{frame_dir}/frame_{j:04}.png', dpi = 500, bbox_inches = 'tight')
-            plt.close()
+            # plt.savefig(f'{frame_dir}/frame_{j:04}.png', dpi = 500, bbox_inches = 'tight')
+            # plt.close()
     
     elif regime == 'uniform':
         prof_scale = .75
@@ -174,9 +172,9 @@ def frames(steps, prop_dist, frame_dir, path, insitu_path, n0, normalized, src_p
             # ax2.spines["left"].set_visible(False)
             ax2.tick_params(axis='y', colors='m')
             divider2 = make_axes_locatable(ax)
-            cax2 = divider2.append_axes("right", size = "4%", pad = .9)
+            cax2 = divider2.append_axes("right", size = "4%", pad = 1.1)
             divider3 = make_axes_locatable(ax2)
-            cax3 = divider3.append_axes("right", size = "4%", pad = .9)
+            cax3 = divider3.append_axes("right", size = "4%", pad = 1.1)
             cax3.remove()
             cb2 = plt.colorbar(im, cax = cax2)
             cb2.set_label(r'$(E_x - B_y)/E_0 $')
@@ -212,15 +210,15 @@ if __name__ == '__main__':
     p = f'/Users/max/HiPACE/recovery/{regime}/h5/{d}/'
     ip = f'/Users/max/HiPACE/recovery/{regime}/insitu/{d}/'
 
-    frameData = defs.Functions(path = p, insitu_path = ip, n0 = ne_plasma, iteration = 0, normalized = n, recovery = True, src_path='/Users/max/HiPACE')
-    frameData.customCMAP()
+    data = defs.Functions(path = p, insitu_path = ip, n0 = ne_plasma, iteration = 0, normalized = n, recovery = True, src_path='/Users/max/HiPACE')
+    data.customCMAP()
     
-    # x_centroidPlot(frameData, show = True, save_name='', regime = regime)
-    # x_emittance_Plot(frameData, show = True, save_name='', regime = regime)
-    # charge_per_time_Plot(frameData, show = True, save_name='', regime = regime, diff = False)
-    charge_per_time_Plot(frameData, show = True, save_name='', regime = regime, diff = True)
+    # x_centroidPlot(dataa, show = True, save_name='', regime = regime)
+    # x_emittance_Plot(data, show = True, save_name='', regime = regime)
+    # charge_per_time_Plot(data, show = True, save_name='', regime = regime, diff = False)
+    # charge_per_time_Plot(data, show = True, save_name='', regime = regime, diff = True)
 
-    # frames(steps=100, prop_dist=.1, frame_dir='/Users/max/Downloads', path=p, insitu_path=ip, n0=ne_plasma, normalized=n, src_path='/Users/max/HiPACE', regime=regime)
+    frames(steps=1, prop_dist=.1, frame_dir='/Users/max/Downloads', path=p, insitu_path=ip, n0=ne_plasma, normalized=n, src_path='/Users/max/HiPACE', regime=regime)
 
     # if regime == 'filament':
         # ne_plasma = 1e17 # cm^-3

@@ -10,38 +10,59 @@ from scipy import constants
 import sys
 
 class Functions():
-    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, check = True, src_path = '/Users/max/HiPACE'):
+    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, mesh_refinement = False, check = True, src_path = '/Users/max/HiPACE'):
         # src_path points to the HiPACE++ source code directory typically titled `hipace`
         
         sys.path.append(src_path + '/hipace/tools/')
         import read_insitu_diagnostics as diag
         self.diag = diag
+        self.ts = OpenPMDTimeSeries(path, check_all_files = check)
         
+        self.MR = mesh_refinement
+        if self.MR:
+            # if mesh refinement is enabled, then the fields are stored in the `_lev0` and `_lev1` fields
+            self.lv0 = '_lev0'
+            self.lv1 = '_lev1'
+
+            # extract level 1 fields
+            self.ExmBy_lev1, self.info_lev1 = self.ts.get_field(field = 'ExmBy' + self.lv1, iteration = iteration)
+            self.Ez_lev1 = self.getZ(self.ts.get_field(field = 'Ez' + self.lv1, iteration = iteration)[0], self.info_lev1)
+            self.rho_lev1 = self.ts.get_field(field = 'rho' + self.lv1, iteration = iteration, coord = 'z')[0]
+            self.jz_beam_lev1 = self.ts.get_field(field = 'jz_beam' + self.lv1, iteration = iteration, coord = 'z')[0]
+        else:
+            self.lv0 = ''
+
+        self.recovery = recovery
+        self.normalized = normalized
+
         self.n0 = n0 # cm^-3
         self.iteration = iteration
-        self.normalized = normalized
-        self.recovery = recovery
-        self.ts = OpenPMDTimeSeries(path, check_all_files = check)
         self.kp_inv = self.skinDepth(self.n0) # m
         self.kp = self.kp_inv**-1 # m^-1
         self.E0 = self.E0(self.n0) # V/m
-        self.ExmBy, self.info, self.Ez, self.xd, self.zd, self.wd, self.xw, self.zw, self.ww, self.xr, self.zr, self.wr = self.getPlotData(self.iteration, self.recovery)
-        self.driveInsitu, self.witnessInsitu, self.recoveryInsitu = self.insitu(insitu_path, self.recovery)
-        self.maskD, self.maskW, self.maskR = self.bunchMask(self.iteration, self.recovery)
-        self.rho = self.ts.get_field(field = 'rho', iteration = self.iteration, coord = 'z')[0]
-        self.jz_beam = self.ts.get_field(field = 'jz_beam', iteration = self.iteration, coord = 'z')[0]
-        self.profD, self.profW, self.profR = (self.diag.per_slice_charge(self.driveInsitu), self.diag.per_slice_charge(self.witnessInsitu), self.diag.per_slice_charge(self.recoveryInsitu))
+        self.ExmBy, self.info, self.Ez, self.xd, self.zd, self.wd, self.xw, self.zw, self.ww, self.xr, self.zr, self.wr = self.getPlotData(self.iteration)
+        self.driveInsitu, self.witnessInsitu, self.recoveryInsitu = self.insitu(insitu_path)
+        self.maskD, self.maskW, self.maskR = self.bunchMask(self.iteration)
+        self.rho = self.ts.get_field(field = 'rho' + self.lv0, iteration = self.iteration, coord = 'z')[0]
+        self.jz_beam = self.ts.get_field(field = 'jz_beam' + self.lv0, iteration = self.iteration, coord = 'z')[0]
+        self.profD, self.profW, self.profR = (self.diag.per_slice_charge(self.driveInsitu) * constants.c, self.diag.per_slice_charge(self.witnessInsitu) * constants.c, self.diag.per_slice_charge(self.recoveryInsitu) * constants.c)
         self.profile = abs(self.profD + self.profW + self.profR) # must index [i] for i-th iteration!! # abs(self.getZ(self.jz_beam, self.info))
         # self.nD, self.nW, self.nR = self.getProfile(self.iteration)
 
         self.IA = constants.m_e * constants.c**3 / constants.e
 
     def customCMAP(self, names = ['RdBu', 'PuOr', 'PRGn', 'bwr', 'bwr_r', 'PuOr_r'], ncolors: int = 256):
+
         for cmap in names:
-            color_array = plt.get_cmap(cmap)(range(ncolors))
-            color_array[:,-1] = abs(np.linspace(-1.0, 1.0, ncolors))
-            map_object = mcolors.LinearSegmentedColormap.from_list(name = cmap + 'T', colors = color_array)
-            plt.register_cmap(cmap = map_object)
+            # if custom version of cmap already exists, skip it
+            if cmap + 'T' in plt.colormaps():
+                continue
+            else:
+                # create the colormap
+                color_array = plt.get_cmap(cmap)(range(ncolors))
+                color_array[:,-1] = abs(np.linspace(-1.0, 1.0, ncolors))
+                map_object = mcolors.LinearSegmentedColormap.from_list(name = cmap + 'T', colors = color_array)
+                plt.register_cmap(cmap = map_object)
 
     def skinDepth(self, ne):
         """
@@ -105,18 +126,18 @@ class Functions():
         """
         return F[:, len(info.x)//2].T
 
-    def getPlotData(self, iteration: int, recovery: bool) -> tuple:
+    def getPlotData(self, iteration: int) -> tuple:
         i = iteration
 
-        ExmBy, info = self.ts.get_field(field = 'ExmBy', iteration = i)
-        Ez = self.getZ(self.ts.get_field(field = 'Ez', iteration = i)[0], info)
+        ExmBy, info = self.ts.get_field(field = 'ExmBy' + self.lv0, iteration = i)
+        Ez = self.getZ(self.ts.get_field(field = 'Ez' + self.lv0, iteration = i)[0], info)
         xd, zd, wd = self.ts.get_particle(species = 'drive', iteration = i, var_list = ['x', 'z', 'w'])
         xw, zw, ww = self.ts.get_particle(species = 'witness', iteration = i, var_list = ['x', 'z', 'w'])
-        if recovery:
+        if self.recovery:
             xr, zr, wr = self.ts.get_particle(species = 'recovery', iteration = i, var_list = ['x', 'z', 'w'])
         else:
             xr, zr, wr = np.zeros_like(xd), np.zeros_like(zd), np.zeros_like(xd)
-
+        
         return ExmBy, info, Ez, xd, zd, wd, xw, zw, ww, xr, zr, wr
 
     def EDensitySim(self, iteration: int):
@@ -126,12 +147,12 @@ class Functions():
         
         i = iteration
 
-        Ez, _ = self.ts.get_field(field = 'Ez', iteration = i)
-        ExmBy, _ = self.ts.get_field(field = 'ExmBy', iteration = i)
-        EypBx, _ = self.ts.get_field(field = 'EypBx', iteration = i)
-        By, _ = self.ts.get_field(field = 'By', iteration = i)
-        Bx, _ = self.ts.get_field(field = 'Bx', iteration = i)
-        Bz, _ = self.ts.get_field(field = 'Bz', iteration = i)
+        Ez, _ = self.ts.get_field(field = 'Ez' + self.lv0, iteration = i)
+        ExmBy, _ = self.ts.get_field(field = 'ExmBy' + self.lv0, iteration = i)
+        EypBx, _ = self.ts.get_field(field = 'EypBx' + self.lv0, iteration = i)
+        By, _ = self.ts.get_field(field = 'By' + self.lv0, iteration = i)
+        Bx, _ = self.ts.get_field(field = 'Bx' + self.lv0, iteration = i)
+        Bz, _ = self.ts.get_field(field = 'Bz' + self.lv0, iteration = i)
 
         if self.normalized:
             Ex = ExmBy + By
@@ -171,9 +192,36 @@ class Functions():
         
         return q0 * q
 
-    def bunchMask(self, iteration: int, recovery: bool) -> tuple:
+    def normed_charge(self, q: float, ne = None) -> float:
+        """
+        Calculates normalized charge based off of charge in Coulombs
+
+        Parameters
+        ----------
+        q : float
+            charge in Coulombs
+        ne : float
+            plasma electron density (in cm^-3).
+
+        Returns
+        -------
+        q0 * q : float
+            normalized charge
+        """
+        # n_b = Q/((2*pi)^(3/2)* std_x * std_y * std_z)
+        
+        if not ne:
+            ne = self.n0
+
+        ne *= 1e6 # cm^-3 -> m^-3
+
+        q0 = constants.c**3 * constants.epsilon_0**(3/2) * constants.m_e**(3/2) / (np.sqrt(ne) * constants.e**2)
+        
+        return q / q0
+
+    def bunchMask(self, iteration: int) -> tuple:
         i = iteration
-        _, info = self.ts.get_field(field = 'Ez', iteration = i, coord = 'z')
+        _, info = self.ts.get_field(field = 'Ez' + self.lv0, iteration = i, coord = 'z')
         zd = self.ts.get_particle(species = 'drive', iteration = i, var_list = ['z'])[0]
         zw = self.ts.get_particle(species = 'witness', iteration = i, var_list = ['z'])[0]
 
@@ -183,7 +231,7 @@ class Functions():
         maskD = np.logical_and(driveMin <= info.z, info.z <= driveMax)
         maskW = np.logical_and(witnessMin <= info.z, info.z <= witnessMax)
 
-        if recovery:
+        if self.recovery:
             zr = self.ts.get_particle(species = 'recovery', iteration = i, var_list = ['z'])[0]
             recoveryMin, recoveryMax = min(zr), max(zr)
             maskR = np.logical_and(recoveryMin <= info.z, info.z <= recoveryMax)
@@ -192,11 +240,11 @@ class Functions():
 
         return maskD, maskW, maskR
 
-    def insitu(self, insitu_path, recovery: bool):
+    def insitu(self, insitu_path):
         driveInsitu = self.diag.read_file(insitu_path + 'reduced_drive.0000.txt')
         witnessInsitu = self.diag.read_file(insitu_path + 'reduced_witness.0000.txt')
 
-        if recovery:
+        if self.recovery:
             recoveryInsitu = self.diag.read_file(insitu_path + 'reduced_recovery.0000.txt')
         else:
             recoveryInsitu = np.zeros_like(driveInsitu)
@@ -236,7 +284,7 @@ class Functions():
         Qw_slices = self.diag.per_slice_charge(self.witnessInsitu)[i]
         Qr_slices = self.diag.per_slice_charge(self.recoveryInsitu)[i]
 
-        Ez_raw, info = self.ts.get_field(field = 'Ez', iteration = i, coord = 'z')
+        Ez_raw, info = self.ts.get_field(field = 'Ez' + self.lv0, iteration = i, coord = 'z')
         
         Ez = self.getZ(Ez_raw, info) # on-axis slice of Ez
 
