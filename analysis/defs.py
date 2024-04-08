@@ -208,12 +208,14 @@ class Functions():
         q0 * q : float
             normalized charge
         """
-        # n_b = Q/((2*pi)^(3/2)* std_x * std_y * std_z)
+        # n_b = Q/((2*pi)^(3/2)* std_x * std_y * std_z) ---- Not used here
         
         if not ne:
             ne = self.n0
 
         ne *= 1e6 # cm^-3 -> m^-3
+        
+        # https://www.wolframalpha.com/input?i=(c%5E3)*(epsilon0)%5E(3/2)*(electron+mass)%5E(3/2)/(sqrt(1/(meter)%5E3)*(electron+charge)%5E2)
 
         q0 = constants.c**3 * constants.epsilon_0**(3/2) * constants.m_e**(3/2) / (np.sqrt(ne) * constants.e**2)
         
