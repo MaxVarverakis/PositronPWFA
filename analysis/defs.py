@@ -10,10 +10,10 @@ from scipy import constants
 import sys
 
 class Functions():
-    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, mesh_refinement = False, check = True, src_path = '/Users/max/HiPACE'):
-        # src_path points to the HiPACE++ source code directory typically titled `hipace`
+    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, fields: bool = True, mesh_refinement = False, check = True, src_path = '/Users/max/HiPACE/src/'):
+        # src_path points to the HiPACE++ source code directory typically titled `hipace` or `src`
         
-        sys.path.append(src_path + '/hipace/tools/')
+        sys.path.append(src_path + 'tools/')
         import read_insitu_diagnostics as diag
         self.diag = diag
         self.ts = OpenPMDTimeSeries(path, check_all_files = check)
@@ -33,6 +33,7 @@ class Functions():
             self.lv0 = ''
 
         self.recovery = recovery
+        self.fields = fields # set to FALSE if fields are not available in the insitu diagnostics file
         self.normalized = normalized
 
         self.n0 = n0 # cm^-3
@@ -41,13 +42,12 @@ class Functions():
         self.kp = self.kp_inv**-1 # m^-1
         self.E0 = self.E0(self.n0) # V/m
         self.ExmBy, self.info, self.Ez, self.xd, self.zd, self.wd, self.xw, self.zw, self.ww, self.xr, self.zr, self.wr = self.getPlotData(self.iteration)
-        self.driveInsitu, self.witnessInsitu, self.recoveryInsitu = self.insitu(insitu_path)
+        self.driveInsitu, self.witnessInsitu, self.recoveryInsitu, self.fieldsInsitu, self.electronsInsitu, self.ionsInsitu = self.insitu(insitu_path)
         self.maskD, self.maskW, self.maskR = self.bunchMask(self.iteration)
         self.rho = self.ts.get_field(field = 'rho' + self.lv0, iteration = self.iteration, coord = 'z')[0]
         self.jz_beam = self.ts.get_field(field = 'jz_beam' + self.lv0, iteration = self.iteration, coord = 'z')[0]
         self.profD, self.profW, self.profR = (self.diag.per_slice_charge(self.driveInsitu) * constants.c, self.diag.per_slice_charge(self.witnessInsitu) * constants.c, self.diag.per_slice_charge(self.recoveryInsitu) * constants.c)
         self.profile = abs(self.profD + self.profW + self.profR) # must index [i] for i-th iteration!! # abs(self.getZ(self.jz_beam, self.info))
-        # self.nD, self.nW, self.nR = self.getProfile(self.iteration)
 
         self.IA = constants.m_e * constants.c**3 / constants.e
 
@@ -250,8 +250,17 @@ class Functions():
             recoveryInsitu = self.diag.read_file(insitu_path + 'reduced_recovery.0000.txt')
         else:
             recoveryInsitu = np.zeros_like(driveInsitu)
+        
+        if self.fields:
+            fieldsInsitu = self.diag.read_file(insitu_path + 'reduced_fields.0000.txt')
+            electronsInsitu = self.diag.read_file(insitu_path + 'reduced_electrons.0000.txt')
+            ionsInsitu = self.diag.read_file(insitu_path + 'reduced_ions.0000.txt')
+        else:
+            fieldsInsitu = np.zeros_like(driveInsitu)
+            electronsInsitu = np.zeros_like(driveInsitu)
+            ionsInsitu = np.zeros_like(driveInsitu)
 
-        return driveInsitu, witnessInsitu, recoveryInsitu
+        return driveInsitu, witnessInsitu, recoveryInsitu, fieldsInsitu, electronsInsitu, ionsInsitu
 
     def quickEfficiency(self, iteration: int) -> float:
         """

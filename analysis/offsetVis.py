@@ -213,7 +213,7 @@ if __name__ == '__main__':
     data = defs.Functions(path = p, insitu_path = ip, n0 = ne_plasma, iteration = 0, normalized = n, recovery = True, src_path='/Users/max/HiPACE')
     data.customCMAP()
     
-    # x_centroidPlot(dataa, show = True, save_name='', regime = regime)
+    # x_centroidPlot(data, show = True, save_name='', regime = regime)
     # x_emittance_Plot(data, show = True, save_name='', regime = regime)
     # charge_per_time_Plot(data, show = True, save_name='', regime = regime, diff = False)
     # charge_per_time_Plot(data, show = True, save_name='', regime = regime, diff = True)
