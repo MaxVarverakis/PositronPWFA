@@ -220,23 +220,4 @@ if __name__ == '__main__':
 
     frames(steps=1, prop_dist=.1, frame_dir='/Users/max/Downloads', path=p, insitu_path=ip, n0=ne_plasma, normalized=n, src_path='/Users/max/HiPACE', regime=regime)
 
-    # if regime == 'filament':
-        # ne_plasma = 1e17 # cm^-3
-    #     d = 'fBOff'
-    # elif regime == 'uniform':
-    #     ne_plasma = 7.8e15 # cm^-3
-    #     d = 'nBOff'
-
-    # p = f'/home/mvarvera/HiPACE++/diags/hdf5/{d}/'
-    # ip = f'/home/mvarvera/HiPACE++/diags/insitu/{d}/'
-
-    # class_name = defs.Functions(path = p, insitu_path = ip, n0 = ne_plasma, iteration = 0, normalized = n, recovery = True, src_path='/home/mvarvera/src')
-    # class_name.customCMAP()
-
-    # x_centroidPlot(class_name, False, save_name='BOff_W_3', regime = regime)
-
-    # frames(steps=173, prop_dist=0.0865, frame_dir='/home/mvarvera/HiPACE++/frames/fBOff_W', path=p, insitu_path=ip, n0=ne_plasma, normalized=n, src_path='/home/mvarvera/src', regime=regime)
-
-
-
 

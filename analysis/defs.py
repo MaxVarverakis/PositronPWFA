@@ -51,7 +51,7 @@ class Functions():
 
         self.IA = constants.m_e * constants.c**3 / constants.e
 
-    def customCMAP(self, names = ['RdBu', 'PuOr', 'PRGn', 'bwr', 'bwr_r', 'PuOr_r'], ncolors: int = 256):
+    def customCMAP(self, names = ['RdBu', 'PuOr', 'PRGn', 'bwr_r', 'PuOr_r', 'seismic_r'], ncolors: int = 256):
 
         for cmap in names:
             # if custom version of cmap already exists, skip it
