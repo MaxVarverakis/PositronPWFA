@@ -188,13 +188,15 @@ class Functions():
 
         ne *= 1e6 # cm^-3 -> m^-3
 
-        q0 = constants.c**3 * constants.epsilon_0**(3/2) * constants.m_e**(3/2) / (np.sqrt(ne) * constants.e**2)
-        
+        # q0 = constants.c**3 * constants.epsilon_0**(3/2) * constants.m_e**(3/2) / (np.sqrt(ne) * constants.e**2)
+        # Alternative calculation that gives same result: 
+        q0 = constants.e * (1e6 * self.n0) * self.kp_inv**3
+
         return q0 * q
 
     def normed_charge(self, q: float, ne = None) -> float:
         """
-        Calculates normalized charge based off of charge in Coulombs
+        Calculates normalized charge density based off of charge in Coulombs
 
         Parameters
         ----------
@@ -217,7 +219,9 @@ class Functions():
         
         # https://www.wolframalpha.com/input?i=(c%5E3)*(epsilon0)%5E(3/2)*(electron+mass)%5E(3/2)/(sqrt(1/(meter)%5E3)*(electron+charge)%5E2)
 
-        q0 = constants.c**3 * constants.epsilon_0**(3/2) * constants.m_e**(3/2) / (np.sqrt(ne) * constants.e**2)
+        # q0 = constants.c**3 * constants.epsilon_0**(3/2) * constants.m_e**(3/2) / (np.sqrt(ne) * constants.e**2)
+        # Alternative calculation that gives same result: 
+        q0 = constants.e * (1e6 * self.n0) * self.kp_inv**3
         
         return q / q0
 
