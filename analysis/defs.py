@@ -10,7 +10,7 @@ from scipy import constants
 import sys
 
 class Functions():
-    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, fields: bool = True, mesh_refinement = False, check = True, src_path = '/Users/max/HiPACE/src/'):
+    def __init__(self, path: str, insitu_path: str, n0: float, iteration: int, normalized: bool, recovery: bool, fields: bool = True, mesh_refinement = False, check = True, src_path = '/Users/max/HiPACE/src/', parallel = False, max_step = 0):
         # src_path points to the HiPACE++ source code directory typically titled `hipace` or `src`
         
         sys.path.append(src_path + 'tools/')
@@ -42,7 +42,7 @@ class Functions():
         self.kp = self.kp_inv**-1 # m^-1
         self.E0 = self.E0(self.n0) # V/m
         self.ExmBy, self.info, self.Ez, self.xd, self.zd, self.wd, self.xw, self.zw, self.ww, self.xr, self.zr, self.wr = self.getPlotData(self.iteration)
-        self.driveInsitu, self.witnessInsitu, self.recoveryInsitu, self.fieldsInsitu, self.electronsInsitu, self.ionsInsitu = self.insitu(insitu_path)
+        self.driveInsitu, self.witnessInsitu, self.recoveryInsitu, self.fieldsInsitu, self.electronsInsitu, self.ionsInsitu = self.insitu(insitu_path, parallel, max_step)
         self.maskD, self.maskW, self.maskR = self.bunchMask(self.iteration)
         self.rho = self.ts.get_field(field = 'rho' + self.lv0, iteration = self.iteration, coord = 'z')[0]
         self.jz_beam = self.ts.get_field(field = 'jz_beam' + self.lv0, iteration = self.iteration, coord = 'z')[0]
@@ -246,23 +246,42 @@ class Functions():
 
         return maskD, maskW, maskR
 
-    def insitu(self, insitu_path):
-        driveInsitu = self.diag.read_file(insitu_path + 'reduced_drive.0000.txt')
-        witnessInsitu = self.diag.read_file(insitu_path + 'reduced_witness.0000.txt')
+    def insitu(self, insitu_path, parallel = False, max_step = 0):
 
-        if self.recovery:
-            recoveryInsitu = self.diag.read_file(insitu_path + 'reduced_recovery.0000.txt')
-        else:
-            recoveryInsitu = np.zeros_like(driveInsitu)
-        
-        if self.fields:
-            fieldsInsitu = self.diag.read_file(insitu_path + 'reduced_fields.0000.txt')
-            electronsInsitu = self.diag.read_file(insitu_path + 'reduced_electrons.0000.txt')
-            ionsInsitu = self.diag.read_file(insitu_path + 'reduced_ions.0000.txt')
-        else:
-            fieldsInsitu = np.zeros_like(driveInsitu)
-            electronsInsitu = np.zeros_like(driveInsitu)
-            ionsInsitu = np.zeros_like(driveInsitu)
+        if not parallel:
+            driveInsitu = self.diag.read_file(insitu_path + 'reduced_drive.0000.txt')
+            witnessInsitu = self.diag.read_file(insitu_path + 'reduced_witness.0000.txt')
+
+            if self.recovery:
+                recoveryInsitu = self.diag.read_file(insitu_path + 'reduced_recovery.0000.txt')
+            else:
+                recoveryInsitu = np.zeros_like(driveInsitu)
+            
+            if self.fields:
+                fieldsInsitu = self.diag.read_file(insitu_path + 'reduced_fields.0000.txt')
+                electronsInsitu = self.diag.read_file(insitu_path + 'reduced_electrons.0000.txt')
+                ionsInsitu = self.diag.read_file(insitu_path + 'reduced_ions.0000.txt')
+            else:
+                fieldsInsitu = np.zeros_like(driveInsitu)
+                electronsInsitu = np.zeros_like(driveInsitu)
+                ionsInsitu = np.zeros_like(driveInsitu)
+        elif parallel:
+            driveInsitu = {step: self.diag.read_file(insitu_path + f'reduced_drive.{step:04}.txt') for step in range(max_step)}
+            witnessInsitu = {step: self.diag.read_file(insitu_path + f'reduced_witness.{step:04}.txt') for step in range(max_step)}
+
+            if self.recovery:
+                recoveryInsitu = {step: self.diag.read_file(insitu_path + f'reduced_recovery.{step:04}.txt') for step in range(max_step)}
+            else:
+                recoveryInsitu = np.zeros_like(driveInsitu)
+            
+            if self.fields:
+                fieldsInsitu = {step: self.diag.read_file(insitu_path + f'reduced_fields.{step:04}.txt') for step in range(max_step)}
+                electronsInsitu = {step: self.diag.read_file(insitu_path + f'reduced_electrons.{step:04}.txt') for step in range(max_step)}
+                ionsInsitu = {step: self.diag.read_file(insitu_path + f'reduced_ions.{step:04}.txt') for step in range(max_step)}
+            else:
+                fieldsInsitu = np.zeros_like(driveInsitu)
+                electronsInsitu = np.zeros_like(driveInsitu)
+                ionsInsitu = np.zeros_like(driveInsitu)
 
         return driveInsitu, witnessInsitu, recoveryInsitu, fieldsInsitu, electronsInsitu, ionsInsitu
 
